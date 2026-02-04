@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import StatCard from "../components/cards/StatCard";
@@ -6,8 +7,8 @@ import { ShoppingCart, IndianRupee } from "lucide-react";
 import { useGetOrdersQuery } from "../store/Api/orderApi";
 
 const Dashboard = () => {
-
   const navigate = useNavigate();
+  const [selectedOrder, setSelectedOrder] = useState(null); // ✅ Modal state
 
   const { data, isLoading, isError } = useGetOrdersQuery({
     page: 1,
@@ -16,17 +17,14 @@ const Dashboard = () => {
 
   const orders = Array.isArray(data?.data) ? data.data : [];
 
-  const sortedOrders = [...orders].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
-
-
-  const latestOrders = [...orders].reverse();
-
+  const latestOrders = useMemo(() => {
+    return [...orders].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  }, [orders]);
 
   const totalOrders = data?.summary?.totalOrders || 0;
   const totalRevenue = data?.summary?.totalRevenue || 0;
-
 
   const stats = [
     {
@@ -43,8 +41,6 @@ const Dashboard = () => {
     },
   ];
 
-
-
   const columns = [
     {
       label: "Customer",
@@ -54,21 +50,14 @@ const Dashboard = () => {
     {
       label: "Items",
       key: "items",
-      render: (row) =>
-        row.items?.length ? (
-          <div className="flex flex-col gap-1">
-            {row.items.map((item, index) => (
-              <span
-                key={index}
-                className="text-xs bg-gray-100 px-2 py-1 rounded-md inline-block w-fit"
-              >
-                {item.name} × {item.quantity}
-              </span>
-            ))}
-          </div>
-        ) : (
-          "No items"
-        ),
+      render: (row) => (
+        <button
+          onClick={() => setSelectedOrder(row)}
+          className="text-gray-600 underline text-sm"
+        >
+          View Items ({row.items?.length || 0})
+        </button>
+      ),
     },
     {
       label: "Amount",
@@ -100,7 +89,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Latest 10 Orders */}
+      {/* Latest Orders */}
       <div className="mt-6">
         <h2 className="text-lg font-semibold mb-4">
           Latest 10 Orders
@@ -108,10 +97,50 @@ const Dashboard = () => {
 
         <Table
           columns={columns}
-          data={sortedOrders}
+          data={latestOrders}
           loading={isLoading}
         />
       </div>
+
+      {/* ✅ Popup Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedOrder(null)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-lg font-semibold mb-4">
+              Items ordered by {selectedOrder.customer?.name}
+            </h2>
+
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+              {selectedOrder.items?.length ? (
+                selectedOrder.items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between border-b pb-2"
+                  >
+                    <span>{item.name}</span>
+                    <span>× {item.quantity}</span>
+                  </div>
+                ))
+              ) : (
+                <p>No items found</p>
+              )}
+            </div>
+
+            <div className="mt-4 text-right font-semibold">
+              Total: ₹{selectedOrder.grandTotal}
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
