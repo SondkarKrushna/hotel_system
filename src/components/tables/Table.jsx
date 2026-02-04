@@ -12,7 +12,7 @@ const Table = ({ columns, data, loading }) => {
       </div>
     );
   }
-
+ 
   return (
     <div className="overflow-x-auto bg-gray-50 border border-gray-200 rounded-xl">
       <table className="min-w-full text-sm">

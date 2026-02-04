@@ -46,6 +46,25 @@ const MyOrders = () => {
       render: (row) => row.customer?.name || "N/A",
     },
     {
+      label: "Items",
+      key: "items",
+      render: (row) =>
+        row.items?.length ? (
+          <div className="flex flex-col gap-1">
+            {row.items.map((item, index) => (
+              <span
+                key={index}
+                className="text-xs bg-gray-100 px-2 py-1 rounded-md inline-block w-fit"
+              >
+                {item.name} × {item.quantity}
+              </span>
+            ))}
+          </div>
+        ) : (
+          "No items"
+        ),
+    },
+    {
       label: "Amount",
       key: "grandTotal",
       render: (row) => `₹${row.grandTotal}`,
@@ -57,6 +76,7 @@ const MyOrders = () => {
         new Date(row.createdAt).toLocaleDateString(),
     },
   ];
+
 
   if (isError) {
     return (
