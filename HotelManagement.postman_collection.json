@@ -1,0 +1,539 @@
+{
+  "info": {
+    "_postman_id": "beb54adf-2449-4a06-a4e1-9036f7c5d1f5",
+    "name": "HotelManagement",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39020428",
+    "_collection_link": "https://go.postman.co/collection/39020428-beb54adf-2449-4a06-a4e1-9036f7c5d1f5?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"onkar1234\",\r\n  \"password\": \"StrongPassword@1234\",\r\n  \"name\": \"Onkar Madane\",\r\n  \"email\": \"onkar.madane1@example.com\",\r\n  \"phone\": \"9876543210\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//     \"phone\": \"9665492993\",\r\n//     \"password\": \"SuperSecurePass2026!\"\r\n// }\r\n\r\n{\r\n    \"phone\": \"8554837128\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "postOrder",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODFhMTc1ZTc3N2U4Yzc4ZjZjYWQ1ZSIsInBob25lIjoiOTY2NTQ5Mjk5MyIsImlhdCI6MTc3MDExMDQ3MSwiZXhwIjoxNzcwMTk2ODcxfQ.RE4iSaHwcKAHSHPhsrW1TK4zNzZ2stTnt20pw3vlJh4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customerName\": \"Onkar Sharma1\",\r\n  \"customerPhone\": \"70124578541\",\r\n  \"roomNumber\": \"204\",\r\n  \"gstPercent\": 18,\r\n  \"items\": [\r\n    {\r\n      \"name\": \"Veg Thali\",\r\n      \"quantity\": 2,\r\n      \"price\": 150\r\n    },\r\n    {\r\n      \"name\": \"Cold Drink\",\r\n      \"quantity\": 1,\r\n      \"price\": 50\r\n    }\r\n  ],\r\n  \"notes\": \"Less spicy\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/orders/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "putOrder",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODA2OGJkYTJhMmQxZWQ2MWNkZTZiOSIsInBob25lIjoiOTg3NjU0MzIxMCIsImlhdCI6MTc3MDAyMzEwNywiZXhwIjoxNzcwMTA5NTA3fQ.uGXRbSAOnIhAEs4bDoItVEGH6xUYFcFbYrGA11LpZf0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"items\": [\r\n    { \"name\": \"Paneer Butter Masala\", \"quantity\": 2, \"price\": 220 },\r\n    { \"name\": \"Butter Naan\", \"quantity\": 4, \"price\": 40 }\r\n  ],\r\n  \"gstPercent\": 18\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/orders/update/69808b1e545ac576962bb0b8",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                "update",
+                "69808b1e545ac576962bb0b8"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "patchStatus",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODA0NWNiYmRlMmQ1NTIwMzI3YzViMSIsInBob25lIjoiOTg3NjU0MzIxMCIsImlhdCI6MTc3MDAxNTYzNywiZXhwIjoxNzcwMTAyMDM3fQ.YBiTsyEl4F_rHqTRBv0LmebPLQuqkbalPgZ6Yt82w0Q",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"paid\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/orders/69804b9f6daa775372a824b1/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                "69804b9f6daa775372a824b1",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMyOrders",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODFhMTZhYzRmYTIwMjM0NDdlMjQ5NiIsInBob25lIjoiODU1NDgzNzEyOCIsImlhdCI6MTc3MDEwOTgyMywiZXhwIjoxNzcwMTk2MjIzfQ.Ed7TSLPXLahUQme3DmIATMPuHJm7Jkhvxub60uD5Zl8",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n  \"password\": \"StrongPassword@123\",\r\n  \"phone\": \"9876543210\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/orders/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getOrderByid",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODA0NWNiYmRlMmQ1NTIwMzI3YzViMSIsInBob25lIjoiOTg3NjU0MzIxMCIsImlhdCI6MTc3MDAxNTYzNywiZXhwIjoxNzcwMTAyMDM3fQ.YBiTsyEl4F_rHqTRBv0LmebPLQuqkbalPgZ6Yt82w0Q",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n  \"password\": \"StrongPassword@123\",\r\n  \"phone\": \"9876543210\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/orders/69804b9f6daa775372a824b1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                "69804b9f6daa775372a824b1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODA3MGE5NzQzMGIxMzlhNzE5NDVjZCIsInBob25lIjoiODU1NDgzNzEyOCIsImlhdCI6MTc3MDA5ODgyNSwiZXhwIjoxNzcwMTg1MjI1fQ.yJ8lLUTnqRyqWKq5dLNcI-CjSDqg00fvThA67CZGfoU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"Demo\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/profile/update",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "profile",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getProfile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODFhMTZhYzRmYTIwMjM0NDdlMjQ5NiIsInBob25lIjoiODU1NDgzNzEyOCIsImlhdCI6MTc3MDExMDMyMSwiZXhwIjoxNzcwMTk2NzIxfQ.pHyiXb8mj9aXEDVdfDABpApHz_N3f_h1AWXosW9w8fc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/profile/get",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "profile",
+                "get"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dish",
+      "item": [
+        {
+          "name": "getDishes",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/dish",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dish"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getDishes Copy",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Paneer Butter Masala 1\",\r\n    \"price\": 250,\r\n    \"category\": \"698196551da1dd155d7b28f3\",\r\n    \"isAvailable\": true,\r\n    \"type\": \"veg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/dish",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dish"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateDish",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Pav Bhaji\",\r\n    \"price\": 250,\r\n    \"category\": \"698196551da1dd155d7b28f3\",\r\n    \"isAvailable\": true,\r\n    \"type\": \"veg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/dish/698197861501cd7cb9bb063a",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dish",
+                "698197861501cd7cb9bb063a"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "getCat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "postCat",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Full Course\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "putCategory",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Full Course\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/category/6981982a573ece9da05a309a",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "category",
+                "6981982a573ece9da05a309a"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
