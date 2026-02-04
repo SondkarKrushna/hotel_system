@@ -16,32 +16,33 @@ const Dashboard = () => {
 
   const orders = Array.isArray(data?.data) ? data.data : [];
 
+  const sortedOrders = [...orders].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+
   const latestOrders = [...orders].reverse();
 
 
-  const totalRevenue = orders.reduce(
-    (sum, item) => sum + (item.grandTotal || 0),
-    0
-  );
+  const totalOrders = data?.summary?.totalOrders || 0;
+  const totalRevenue = data?.summary?.totalRevenue || 0;
+
 
   const stats = [
     {
       title: "Total Orders",
-      value: isLoading ? "Loading..." : orders.length,
-      subtitle: "All Orders",
+      value: isLoading ? "Loading..." : totalOrders,
       icon: ShoppingCart,
       bg: "#EAF0FE",
-      onClick: () => navigate('/myorders'),
     },
     {
       title: "Total Revenue",
       value: isLoading ? "Loading..." : `₹${totalRevenue}`,
-      subtitle: "All Revenue",
       icon: IndianRupee,
       bg: "#F3EEFE",
-      onClick: () => navigate('/totalrevenue'),
     },
   ];
+
 
 
   const columns = [
@@ -88,7 +89,7 @@ const Dashboard = () => {
 
         <Table
           columns={columns}
-          data={latestOrders}
+          data={sortedOrders}
           loading={isLoading}
         />
       </div>

@@ -45,11 +45,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       icon: ShoppingCart,
       link: "/myorders",
     },
-    {
-      name: "Revenue",
-      icon: IndianRupee,
-      link: "/totalrevenue",
-    },
+    // {
+    //   name: "Revenue",
+    //   icon: IndianRupee,
+    //   link: "/totalrevenue",
+    // },
     // {
     //   name: "Food Menu",
     //   icon: UtensilsCrossed,

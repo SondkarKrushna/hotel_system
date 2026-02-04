@@ -1,1 +1,9 @@
-@import "tailwindcss"; 
+@import "tailwindcss";
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  @apply overflow-y-auto;
+}
