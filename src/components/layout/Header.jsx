@@ -32,7 +32,7 @@ const Header = ({ onMenuClick }) => {
         <div className="flex items-center gap-3 px-4 py-2 min-w-[160px] h-[58px] rounded-2xl relative">
           
           {/* Name */}
-          <div className="flex flex-col leading-tight text-right">
+          <div className="flex flex-col leading-tight text-right ml-6 pl-6">
             <span className="text-sm font-medium text-[#1E1E1E] truncate">
               {user?.name || "Admin"}
             </span>
