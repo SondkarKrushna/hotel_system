@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import Layout from "../components/layout/Layout";
 import Table from "../components/tables/Table";
+import Skeleton from "../components/ui/Skeleton";
 import { useGetOrdersQuery } from "../store/Api/orderApi";
 
 const MyOrders = () => {
@@ -83,99 +84,161 @@ const MyOrders = () => {
     <Layout>
       {/* Header + Search */}
       <div className="mb-6 mt-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">All Orders</h1>
-          <p className="text-sm text-gray-500">
-            Showing {filteredOrders.length} orders
-          </p>
-        </div>
+        {isLoading ? (
+          <>
+            <div>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <Skeleton className="h-10 w-full sm:w-64" />
+          </>
+        ) : (
+          <>
+            <div>
+              <h1 className="text-xl font-semibold">All Orders</h1>
+              <p className="text-sm text-gray-500">
+                Showing {filteredOrders.length} orders
+              </p>
+            </div>
 
-        <input
-          type="text"
-          placeholder="Search by customer name..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="border px-4 py-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+            <input
+              type="text"
+              placeholder="Search by customer name..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border px-4 py-2 pr-2 mr-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </>
+        )}
       </div>
 
+      {/* Table */}
       <div className="w-full overflow-x-auto">
         <div className="sm:text-base text-xs">
-          <Table
-            columns={columns}
-            data={paginatedOrders}
-            loading={isLoading}
-          />
+          {isLoading ? (
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between items-center mb-4"
+                >
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-4 w-1/6" />
+                  <Skeleton className="h-4 w-1/6" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table
+              columns={columns}
+              data={paginatedOrders}
+              loading={isLoading}
+            />
+          )}
         </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-6">
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.max(prev - 1, 1))
-          }
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
+      {!isLoading && (
+        <div className="flex justify-center gap-2 mt-6">
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.max(prev - 1, 1))
+            }
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
 
-        <span className="px-4 py-2">
-          Page {currentPage} of {totalPages || 1}
-        </span>
+          <span className="px-4 py-2">
+            Page {currentPage} of {totalPages || 1}
+          </span>
 
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              Math.min(prev + 1, totalPages)
-            )
-          }
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) =>
+                Math.min(prev + 1, totalPages)
+              )
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
-      {/* ✅ Modal Popup */}
+      {/* Modal remains same */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative
+                 animate-[fadeInScale_.25s_ease-out]"
+          >
             {/* Close Button */}
             <button
               onClick={() => setSelectedOrder(null)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 
+                   transition duration-200 text-xl"
             >
               ✕
             </button>
 
-            <h2 className="text-lg font-semibold mb-4">
-              Items ordered by {selectedOrder.customer?.name}
+            {/* Header */}
+            <h2 className="text-xl font-semibold mb-1">
+              Order Details
             </h2>
+            <p className="text-sm text-gray-500 mb-5">
+              Customer: {selectedOrder.customer?.name}
+            </p>
 
-            <div className="space-y-3 max-h-80 overflow-y-auto">
+            {/* Items List */}
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
               {selectedOrder.items?.length ? (
                 selectedOrder.items.map((item, index) => (
                   <div
                     key={index}
-                    className="flex justify-between border-b pb-2"
+                    className="flex justify-between items-center bg-gray-50 
+                         hover:bg-gray-100 transition 
+                         rounded-lg px-3 py-2"
                   >
-                    <span>{item.name}</span>
-                    <span>× {item.quantity}</span>
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+
+                    <span className="text-sm font-semibold text-gray-800">
+                      × {item.quantity}
+                    </span>
                   </div>
                 ))
               ) : (
-                <p>No items found</p>
+                <p className="text-sm text-gray-400">
+                  No items found
+                </p>
               )}
             </div>
 
-            <div className="mt-4 text-right font-semibold">
-              Total: ₹{selectedOrder.grandTotal}
+            {/* Footer */}
+            <div className="mt-6 border-t pt-4 flex justify-between items-center">
+              <span className="text-gray-500 text-sm">
+                Grand Total
+              </span>
+              <span className="text-lg font-bold text-indigo-600">
+                ₹{selectedOrder.grandTotal}
+              </span>
             </div>
           </div>
         </div>
