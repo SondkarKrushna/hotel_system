@@ -55,7 +55,7 @@ const Dashboard = () => {
           onClick={() => setSelectedOrder(row)}
           className="text-gray-600 underline text-sm"
         >
-          View Items ({row.items?.length || 0})
+          View
         </button>
       ),
     },
@@ -104,7 +104,7 @@ const Dashboard = () => {
 
       {/* ✅ Popup Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
 
             {/* Close Button */}
