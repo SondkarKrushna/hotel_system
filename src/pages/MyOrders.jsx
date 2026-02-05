@@ -63,12 +63,12 @@ const MyOrders = () => {
       key: "grandTotal",
       render: (row) => `₹${row.grandTotal}`,
     },
-    {
-      label: "Date",
-      key: "createdAt",
-      render: (row) =>
-        new Date(row.createdAt).toLocaleDateString(),
-    },
+    // {
+    //   label: "Date",
+    //   key: "createdAt",
+    //   render: (row) =>
+    //     new Date(row.createdAt).toLocaleDateString(),
+    // },
   ];
 
   if (isError) {
@@ -106,7 +106,7 @@ const MyOrders = () => {
         <div className="sm:text-base text-xs">
           <Table
             columns={columns}
-            data={latestOrders}
+            data={paginatedOrders}
             loading={isLoading}
           />
         </div>

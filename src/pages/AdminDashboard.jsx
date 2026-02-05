@@ -48,6 +48,11 @@ const Dashboard = () => {
       render: (row) => row.customer?.name || "N/A",
     },
     {
+      label: "Amount",
+      key: "grandTotal",
+      render: (row) => `₹${row.grandTotal}`,
+    },
+    {
       label: "Items",
       key: "items",
       render: (row) => (
@@ -59,17 +64,13 @@ const Dashboard = () => {
         </button>
       ),
     },
-    {
-      label: "Amount",
-      key: "grandTotal",
-      render: (row) => `₹${row.grandTotal}`,
-    },
-    {
-      label: "Date",
-      key: "createdAt",
-      render: (row) =>
-        new Date(row.createdAt).toLocaleDateString(),
-    },
+    
+    // {
+    //   label: "Date",
+    //   key: "createdAt",
+    //   render: (row) =>
+    //     new Date(row.createdAt).toLocaleDateString(),
+    // },
   ];
 
   if (isError) {
