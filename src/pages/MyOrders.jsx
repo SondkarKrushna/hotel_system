@@ -102,11 +102,15 @@ const MyOrders = () => {
         />
       </div>
 
-      <Table
-        columns={columns}
-        data={paginatedOrders}
-        loading={isLoading}
-      />
+      <div className="w-full overflow-x-auto">
+        <div className="sm:text-base text-xs">
+          <Table
+            columns={columns}
+            data={latestOrders}
+            loading={isLoading}
+          />
+        </div>
+      </div>
 
       {/* Pagination */}
       <div className="flex justify-center gap-2 mt-6">

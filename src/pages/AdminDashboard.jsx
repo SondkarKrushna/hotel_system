@@ -95,11 +95,16 @@ const Dashboard = () => {
           Latest 10 Orders
         </h2>
 
-        <Table
-          columns={columns}
-          data={latestOrders}
-          loading={isLoading}
-        />
+        <div className="w-full overflow-x-auto">
+          <div className="sm:text-base text-xs">
+            <Table
+              columns={columns}
+              data={latestOrders}
+              loading={isLoading}
+            />
+          </div>
+        </div>
+
       </div>
 
       {/* ✅ Popup Modal */}
