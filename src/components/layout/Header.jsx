@@ -2,12 +2,15 @@ import { Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import ProfileMenu from "../ProfileMenu";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ onMenuClick }) => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [showProfile, setShowProfile] = useState(false);
+
+  const navigate = useNavigate();
 
   return (
     <header className="bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
@@ -21,7 +24,9 @@ const Header = ({ onMenuClick }) => {
           <Menu size={24} />
         </button>
 
-        <h1 className="text-lg sm:text-xl font-semibold">
+        <h1 className="text-lg sm:text-xl font-semibold"
+        onClick={() => navigate('/dashboard')}
+        >
           Admin Dashboard
         </h1>
       </div>
