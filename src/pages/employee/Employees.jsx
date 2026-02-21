@@ -1,13 +1,6 @@
 import { useState, useMemo } from "react";
 import Layout from "../../components/layout/Layout";
 import Table from "../../components/tables/Table";
-import {
-  useGetEmployeesQuery,
-  useCreateEmployeeMutation,
-  useUpdateEmployeeMutation,
-  useDeleteEmployeeMutation,
-} from "../../store/Api/employeeApi";
-import { toast } from "react-toastify";
 
 const Employees = () => {
   const [search, setSearch] = useState("");
@@ -16,6 +9,42 @@ const Employees = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
+
+  // ✅ STATIC EMPLOYEE DATA
+  const [employees, setEmployees] = useState([
+    {
+      _id: "1",
+      fullName: "Rahul Sharma",
+      email: "rahul@gmail.com",
+      phone: "9876543210",
+      role: "Manager",
+      createdAt: "2025-01-10",
+    },
+    {
+      _id: "2",
+      fullName: "Monika Nikam",
+      email: "monika@gmail.com",
+      phone: "9876500000",
+      role: "Receptionist",
+      createdAt: "2025-01-12",
+    },
+    {
+      _id: "3",
+      fullName: "Amit Patil",
+      email: "amit@gmail.com",
+      phone: "9998887776",
+      role: "Chef",
+      createdAt: "2025-01-15",
+    },
+    {
+      _id: "4",
+      fullName: "Neha Deshmukh",
+      email: "neha@gmail.com",
+      phone: "9123456789",
+      role: "Waiter",
+      createdAt: "2025-01-18",
+    },
+  ]);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -26,28 +55,16 @@ const Employees = () => {
     confirmPassword: "",
   });
 
-  // ✅ API Hooks
-  const hotelId = localStorage.getItem("hotelId");
-  const { data, isLoading, error } = useGetEmployeesQuery(hotelId);
-  const [createEmployee] = useCreateEmployeeMutation();
-  const [updateEmployee] = useUpdateEmployeeMutation();
-  const [deleteEmployee] = useDeleteEmployeeMutation();
-
-  const employees = useMemo(() => {
-    if (!Array.isArray(data?.data)) return [];
-    return data.data;
-  }, [data]);
-
-  // ✅ Search
+  // ✅ Search employees
   const filteredEmployees = useMemo(() => {
-    return employees.filter(
-      (emp) =>
-        emp.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-        emp.email?.toLowerCase().includes(search.toLowerCase()) ||
-        emp.role?.toLowerCase().includes(search.toLowerCase())
+    return employees.filter((emp) =>
+      emp.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      emp.email?.toLowerCase().includes(search.toLowerCase()) ||
+      emp.role?.toLowerCase().includes(search.toLowerCase())
     );
   }, [employees, search]);
 
+  // ✅ Pagination
   const totalPages = Math.ceil(filteredEmployees.length / limit);
 
   const paginatedEmployees = filteredEmployees.slice(
@@ -55,7 +72,7 @@ const Employees = () => {
     currentPage * limit
   );
 
-  // ✅ Add
+  // ✅ Open Add Modal
   const handleAdd = () => {
     setEditEmployee(null);
     setFormData({
@@ -69,7 +86,7 @@ const Employees = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Edit
+  // ✅ Open Edit Modal
   const handleEdit = (employee) => {
     setEditEmployee(employee);
     setFormData({
@@ -83,67 +100,87 @@ const Employees = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Delete
-  const handleDelete = async (id, name) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete this employee`
-    );
+  // ✅ Delete Employee
+  const handleDelete = (id) => {
+    if (!window.confirm("Are you sure you want to delete this employee?")) return;
 
-    if (!confirmDelete) return;
-
-    try {
-      await deleteEmployee(id).unwrap();
-      toast.success("Employee deleted successfully");
-    } catch (error) {
-      toast.error(error?.data?.message || "Delete failed");
-    }
+    setEmployees((prev) => prev.filter((emp) => emp._id !== id));
+    alert("Employee deleted successfully!");
   };
 
-  // ✅ Submit (Add + Update)
-  const handleSubmit = async (e) => {
+  // ✅ Add / Update Employee
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!formData.fullName || !formData.email || !formData.phone || !formData.role) {
-      return toast.error("All fields are required");
+      return alert("All fields are required!");
     }
 
-    try {
-      if (!editEmployee) {
-        if (!formData.password || !formData.confirmPassword) {
-          return toast.error("Password required");
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-          return toast.error("Passwords do not match");
-        }
-
-        await createEmployee(formData).unwrap();
-        toast.success("Employee added successfully");
-      } else {
-        await updateEmployee({
-          id: editEmployee._id,
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          role: formData.role,
-        }).unwrap();
-
-        toast.success("Employee updated successfully");
+    if (!editEmployee) {
+      if (!formData.password || !formData.confirmPassword) {
+        return alert("Password and Confirm Password required!");
       }
 
-      setIsModalOpen(false);
-    } catch (error) {
-      toast.error(error?.data?.message || "Something went wrong");
+      if (formData.password !== formData.confirmPassword) {
+        return alert("Passwords do not match!");
+      }
+
+      const newEmployee = {
+        _id: Date.now().toString(),
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        createdAt: new Date().toISOString(),
+      };
+
+      setEmployees((prev) => [newEmployee, ...prev]);
+      alert("Employee added successfully!");
+    } else {
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp._id === editEmployee._id
+            ? {
+                ...emp,
+                fullName: formData.fullName,
+                email: formData.email,
+                phone: formData.phone,
+                role: formData.role,
+              }
+            : emp
+        )
+      );
+
+      alert("Employee updated successfully!");
     }
+
+    setIsModalOpen(false);
   };
 
   const columns = [
-    { label: "Full Name", key: "fullName" },
-    { label: "Email", key: "email" },
-    { label: "Phone", key: "phone" },
-    { label: "Role", key: "role" },
+    {
+      label: "Full Name",
+      key: "fullName",
+      render: (row) => row.fullName || "N/A",
+    },
+    {
+      label: "Email",
+      key: "email",
+      render: (row) => row.email || "N/A",
+    },
+    {
+      label: "Phone",
+      key: "phone",
+      render: (row) => row.phone || "N/A",
+    },
+    {
+      label: "Role",
+      key: "role",
+      render: (row) => row.role || "N/A",
+    },
     {
       label: "Actions",
+      key: "actions",
       render: (row) => (
         <div className="flex gap-2">
           <button
@@ -154,7 +191,7 @@ const Employees = () => {
           </button>
 
           <button
-            onClick={() => handleDelete(row._id, row.fullName)}
+            onClick={() => handleDelete(row._id)}
             className="px-3 py-1 bg-red-500 text-white rounded text-xs"
           >
             Delete
@@ -166,10 +203,16 @@ const Employees = () => {
 
   return (
     <Layout>
-      <div className="mb-6 mt-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">Employees</h1>
+      {/* Header + Search + Add */}
+      <div className="mb-6 mt-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl font-semibold">Employees</h1>
+          <p className="text-sm text-gray-500">
+            Showing {filteredEmployees.length} employees
+          </p>
+        </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <input
             type="text"
             placeholder="Search employee..."
@@ -178,7 +221,7 @@ const Employees = () => {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="border px-4 py-2 rounded"
+            className="border px-4 py-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <button
@@ -190,35 +233,134 @@ const Employees = () => {
         </div>
       </div>
 
-      <Table columns={columns} data={paginatedEmployees} loading={isLoading} />
+      {/* Table */}
+      <div className="w-full overflow-x-auto">
+        <Table columns={columns} data={paginatedEmployees} />
+      </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-3 mt-6">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-4 py-2 border rounded"
-          >
-            Prev
-          </button>
+      <div className="flex justify-center gap-2 mt-6">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
 
-          <span>
-            {currentPage} / {totalPages}
-          </span>
+        <span className="px-4 py-2">
+          Page {currentPage} of {totalPages || 1}
+        </span>
 
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 border rounded"
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative"
           >
-            Next
-          </button>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">
+              {editEmployee ? "Edit Employee" : "Add Employee"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Role (Manager, Chef, etc.)"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              {/* Password only for Add */}
+              {!editEmployee && (
+                <>
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    className="w-full border px-4 py-2 rounded"
+                  />
+
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className="w-full border px-4 py-2 rounded"
+                  />
+                </>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-2 bg-indigo-600 text-white rounded font-medium"
+              >
+                {editEmployee ? "Update Employee" : "Add Employee"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
-
-      {/* Modal (same as your UI — no design change) */}
-      {/* Keep your existing modal JSX exactly same */}
     </Layout>
   );
 };
