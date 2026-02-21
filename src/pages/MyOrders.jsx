@@ -143,7 +143,7 @@ const MyOrders = () => {
 
       {/* Pagination */}
       {!isLoading && (
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="flex justify-end gap-2 mt-6">
           <button
             onClick={() =>
               setCurrentPage((prev) => Math.max(prev - 1, 1))

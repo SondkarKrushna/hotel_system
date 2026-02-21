@@ -2,6 +2,11 @@ import { useState } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
+  FolderTree,
+  UtensilsCrossed,
+  Hotel,
+  UserCog,
+  Users,
   Menu,
   X,
   LogOut,
@@ -35,6 +40,31 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       name: "Orders",
       icon: ShoppingCart,
       link: "/myorders",
+    },
+    {
+      name: "Categories",
+      icon: FolderTree,
+      link: "/category",
+    },
+    {
+      name: "Dishes",
+      icon: UtensilsCrossed,
+      link: "/dishes",
+    },
+    {
+      name: "Hotels",
+      icon: Hotel,
+      link: "/allhotels",
+    },
+    {
+      name: "Employee",
+      icon: UserCog,
+      link: "/employee",
+    },
+    {
+      name: "Users",
+      icon: Users,
+      link: "/users",
     },
   ];
 
@@ -96,13 +126,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           end
           onClick={() => setIsOpen(false)}
           className={({ isActive }) =>
-            `flex items-center ${
-              collapsed ? "justify-center" : "gap-3"
+            `flex items-center ${collapsed ? "justify-center" : "gap-3"
             } px-4 py-2 rounded-lg text-sm transition
-            ${
-              isActive
-                ? "bg-[#0d1827] text-white"
-                : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
+            ${isActive
+              ? "bg-[#0d1827] text-white"
+              : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
             }`
           }
           title={collapsed ? "Dashboard" : ""}
@@ -134,13 +162,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               to={item.link}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
-                `flex items-center ${
-                  collapsed ? "justify-center" : "gap-3"
+                `flex items-center ${collapsed ? "justify-center" : "gap-3"
                 } px-4 py-2 rounded-lg text-sm transition
-                ${
-                  isActive
-                    ? "bg-[#0d1827] text-white"
-                    : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
+                ${isActive
+                  ? "bg-[#0d1827] text-white"
+                  : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
                 }`
               }
               title={collapsed ? item.name : ""}
@@ -169,9 +195,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       <div className="px-2 mt-4">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center ${
-            collapsed ? "justify-center" : "gap-3"
-          } px-4 py-2 rounded-lg text-sm transition
+          className={`w-full flex items-center ${collapsed ? "justify-center" : "gap-3"
+            } px-4 py-2 rounded-lg text-sm transition
           text-red-600 hover:bg-red-50`}
           title={collapsed ? "Logout" : ""}
         >

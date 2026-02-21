@@ -1,14 +1,14 @@
 const Table = ({ columns, data, loading }) => {
   if (loading) {
     return (
-      <div className="p-4 text-center text-gray-500">Loading orders...</div>
+      <div className="p-4 text-center text-gray-500">Loading data...</div>
     );
   }
 
   if (!data.length) {
     return (
       <div className="p-4 text-center text-gray-500">
-        No orders found
+        No data found
       </div>
     );
   }

@@ -85,3 +85,11 @@ const TotalRevenue = () => {
 };
 
 export default TotalRevenue;
+/* 
+
+
+Menues hotelwise
+boulnk manage all menuswise
+multiple hotels manage
+one hotel how mane users,employees
+*/
