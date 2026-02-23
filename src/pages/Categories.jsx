@@ -21,6 +21,12 @@ const Categories = () => {
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
 
+  const userRole = useMemo(() => {
+        const user = JSON.parse(localStorage.getItem("adminUser"));
+        return user?.role;
+    }, []);
+    const isAdmin = userRole === "HOTEL_ADMIN";
+    console.log("user role-===0",isAdmin)
   const allCategories = useMemo(() => {
     if (!Array.isArray(data?.data)) return [];
     return [...data.data].sort(
@@ -76,6 +82,8 @@ const Categories = () => {
         new Date(row.createdAt).toLocaleDateString(),
     },
 
+    ...(isAdmin
+        ? [
     {
       label: "Actions",
       render: (row) => (
@@ -99,6 +107,8 @@ const Categories = () => {
         </div>
       ),
     },
+    ]
+        : []),
   ];
 
   if (isError) {
@@ -126,7 +136,7 @@ const Categories = () => {
             }}
             className="border px-4 py-2 rounded"
           />
-
+          {isAdmin && (
           <button
             onClick={() => {
               setSelectedCategory(null);
@@ -136,6 +146,7 @@ const Categories = () => {
           >
             + Add Category
           </button>
+          )}
         </div>
       </div>
 

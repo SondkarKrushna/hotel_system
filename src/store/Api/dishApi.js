@@ -1,10 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const baseUrl = import.meta.env.VITE_BACKEND_URL || "https://hotelmanagement-vcsy.onrender.com";
+
 export const dishApi = createApi({
   reducerPath: "dishApi",
   baseQuery: fetchBaseQuery({
-     baseUrl: `${import.meta.env.VITE_BACKEND_URL}`
-
+    baseUrl,
+    credentials: "include",
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth?.token;
+      if (token) headers.set("authorization", `Bearer ${token}`);
+      return headers;
+    },
   }),
   tagTypes: ["Dish"],
   endpoints: (builder) => ({

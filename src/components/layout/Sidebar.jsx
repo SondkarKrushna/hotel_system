@@ -32,7 +32,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     setTimeout(() => {
       navigate("/", { replace: true });
+<<<<<<< HEAD
     }, 500);
+=======
+    }, 500); // small delay so toast is visible
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
   };
 
   const menuItems = [
@@ -42,6 +46,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       link: "/myorders",
     },
     {
+<<<<<<< HEAD
       name: "Categories",
       icon: FolderTree,
       link: "/category",
@@ -57,15 +62,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       link: "/allhotels",
     },
     {
-      name: "Employee",
+      name: "Staff",
       icon: UserCog,
-      link: "/employee",
+      link: "/staff",
     },
-    {
-      name: "Users",
-      icon: Users,
-      link: "/users",
+    // {
+    //   name: "Users",
+    //   icon: Users,
+    //   link: "/users",
+=======
+      name: "Revenue",
+      icon: IndianRupee,
+      link: "/totalrevenue",
     },
+    // {
+    //   name: "Food Menu",
+    //   icon: UtensilsCrossed,
+    //   link: "/menu",
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
+    // },
   ];
 
   return (
@@ -73,6 +88,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       animate={{ width: collapsed ? 80 : 256 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={`
+<<<<<<< HEAD
         fixed inset-y-0 left-0
         bg-white border-r border-gray-200
         z-40 transform
@@ -80,14 +96,30 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         lg:static lg:translate-x-0
         flex flex-col
       `}
+=======
+    fixed inset-y-0 left-0
+    ${collapsed ? "w-20" : "w-64"}
+    bg-white border-r border-gray-200
+    z-40 transform transition-transform duration-300
+    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:static lg:translate-x-0
+    flex flex-col
+  `}
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
     >
       {/* Header */}
       <div className="p-4 flex items-center justify-between text-[#0d1827]">
         <div className="flex items-center gap-2 overflow-hidden">
+<<<<<<< HEAD
           <AnimatePresence>
             {!collapsed && (
               <motion.img
                 key="logo"
+=======
+          {
+            !collapsed && (
+              <img
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
                 src="/images/logo_1.png"
                 alt="Tech Surya"
                 initial={{ opacity: 0, x: -10 }}
@@ -97,7 +129,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 className="w-36"
               />
             )}
+<<<<<<< HEAD
           </AnimatePresence>
+=======
+
+
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
         </div>
 
         <div className="flex items-center gap-2">

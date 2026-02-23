@@ -1,22 +1,34 @@
+<<<<<<< HEAD
 import { useMemo, useState } from "react";
+=======
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import StatCard from "../components/cards/StatCard";
 import Table from "../components/tables/Table";
+<<<<<<< HEAD
 import Skeleton from "../components/ui/Skeleton";
+import { ShoppingCart, IndianRupee, Users, Utensils } from "lucide-react";
+=======
 import { ShoppingCart, IndianRupee } from "lucide-react";
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 import { useGetOrdersQuery } from "../store/Api/orderApi";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [selectedOrder, setSelectedOrder] = useState(null); // ✅ Modal state
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [activeTab, setActiveTab] = useState("orders"); // Tab: orders, staff, dishes
 
   const { data, isLoading, isError } = useGetOrdersQuery({
     page: 1,
     limit: 10,
   });
 
+  // Handle both old structure (orders) and new structure (hotel dashboard)
+  const hotelData = data?.data?.hotel ? data.data : null;
   const orders = Array.isArray(data?.data) ? data.data : [];
+  const staff = Array.isArray(hotelData?.staff) ? hotelData.staff : [];
+  const dishes = Array.isArray(hotelData?.dishes) ? hotelData.dishes : [];
 
   const latestOrders = useMemo(() => {
     return [...orders].sort(
@@ -24,8 +36,11 @@ const Dashboard = () => {
     );
   }, [orders]);
 
-  const totalOrders = data?.summary?.totalOrders || 0;
-  const totalRevenue = data?.summary?.totalRevenue || 0;
+  // Get stats from new API response
+  const totalOrders = hotelData?.summary?.counts?.orders || data?.summary?.totalOrders || 0;
+  const totalRevenue = hotelData?.summary?.financials?.totalRevenue || data?.summary?.totalRevenue || 0;
+  const totalStaff = hotelData?.summary?.counts?.staff || 0;
+  const totalDishes = hotelData?.summary?.counts?.dishes || 0;
 
   const stats = [
     {
@@ -39,6 +54,18 @@ const Dashboard = () => {
       value: isLoading ? "Loading..." : `₹${totalRevenue}`,
       icon: IndianRupee,
       bg: "#F3EEFE",
+    },
+    {
+      title: "Total Staff",
+      value: isLoading ? "Loading..." : totalStaff,
+      icon: Users,
+      bg: "#FFF4E6",
+    },
+    {
+      title: "Total Dishes",
+      value: isLoading ? "Loading..." : totalDishes,
+      icon: Utensils,
+      bg: "#E6F9F0",
     },
   ];
 
@@ -65,12 +92,60 @@ const Dashboard = () => {
       key: "grandTotal",
       render: (row) => `₹${row.grandTotal}`,
     },
-    // {
-    //   label: "Date",
-    //   key: "createdAt",
-    //   render: (row) =>
-    //     new Date(row.createdAt).toLocaleDateString(),
-    // },
+  ];
+
+  const staffColumns = [
+    {
+      label: "Name",
+      key: "profile",
+      render: (row) => row.profile?.name || "N/A",
+    },
+    {
+      label: "Username",
+      key: "username",
+      render: (row) => row.username || "N/A",
+    },
+    {
+      label: "Email",
+      key: "profile",
+      render: (row) => row.profile?.email || "N/A",
+    },
+    {
+      label: "Phone",
+      key: "phone",
+      render: (row) => row.phone || "N/A",
+    },
+  ];
+
+  const dishesColumns = [
+    {
+      label: "Dish Name",
+      key: "name",
+      render: (row) => row.name || "N/A",
+    },
+    {
+      label: "Type",
+      key: "type",
+      render: (row) => (
+        <span className={`px-2 py-1 rounded text-xs ${row.type === "veg" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          {row.type?.charAt(0).toUpperCase() + row.type?.slice(1)}
+        </span>
+      ),
+    },
+    {
+      label: "Price",
+      key: "price",
+      render: (row) => `₹${row.price}`,
+    },
+    {
+      label: "Availability",
+      key: "isAvailable",
+      render: (row) => (
+        <span className={`px-2 py-1 rounded text-xs ${row.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          {row.isAvailable ? "Available" : "Unavailable"}
+        </span>
+      ),
+    },
   ];
 
   if (isError) {
@@ -81,12 +156,13 @@ const Dashboard = () => {
     );
   }
 
+<<<<<<< HEAD
   return (
     <Layout>
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {isLoading
-          ? Array.from({ length: 2 }).map((_, i) => (
+          ? Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
               className="bg-white p-4 rounded-xl shadow-sm"
@@ -100,11 +176,46 @@ const Dashboard = () => {
           ))}
       </div>
 
+      {/* Tabs */}
+      {hotelData && (
+        <div className="flex gap-4 mb-6 border-b">
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={`px-4 py-2 font-medium transition ${activeTab === "orders"
+              ? "border-b-2 border-indigo-600 text-indigo-600"
+              : "text-gray-600 hover:text-gray-800"
+              }`}
+          >
+            Orders
+          </button>
+          <button
+            onClick={() => setActiveTab("staff")}
+            className={`px-4 py-2 font-medium transition ${activeTab === "staff"
+              ? "border-b-2 border-indigo-600 text-indigo-600"
+              : "text-gray-600 hover:text-gray-800"
+              }`}
+          >
+            Staff ({staff.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("dishes")}
+            className={`px-4 py-2 font-medium transition ${activeTab === "dishes"
+              ? "border-b-2 border-indigo-600 text-indigo-600"
+              : "text-gray-600 hover:text-gray-800"
+              }`}
+          >
+            Dishes ({dishes.length})
+          </button>
+        </div>
+      )}
 
-      {/* Latest Orders */}
+
+      {/* Content based on active tab */}
       <div className="mt-6">
         <h2 className="text-lg font-semibold mb-4">
-          Latest 10 Orders
+          {activeTab === "orders" && "Latest 10 Orders"}
+          {activeTab === "staff" && "Staff Members"}
+          {activeTab === "dishes" && "Available Dishes"}
         </h2>
 
         <div className="w-full overflow-x-auto">
@@ -123,16 +234,32 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={latestOrders}
-                loading={isLoading}
-              />
+              <>
+                {activeTab === "orders" && (
+                  <Table
+                    columns={columns}
+                    data={latestOrders.slice(0, 10)}
+                    loading={isLoading}
+                  />
+                )}
+                {activeTab === "staff" && (
+                  <Table
+                    columns={staffColumns}
+                    data={staff}
+                    loading={isLoading}
+                  />
+                )}
+                {activeTab === "dishes" && (
+                  <Table
+                    columns={dishesColumns}
+                    data={dishes}
+                    loading={isLoading}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
-
-
       </div>
 
       {/* ✅ Popup Modal */}
@@ -207,6 +334,93 @@ const Dashboard = () => {
         </div>
       )}
 
+=======
+  const navigate = useNavigate();
+
+  const { data, isLoading, isError } = useGetOrdersQuery({
+    page: 1,
+    limit: 10,
+  });
+
+  const orders = Array.isArray(data?.data) ? data.data : [];
+
+  const latestOrders = [...orders].reverse();
+
+
+  const totalRevenue = orders.reduce(
+    (sum, item) => sum + (item.grandTotal || 0),
+    0
+  );
+
+  const stats = [
+    {
+      title: "Total Orders",
+      value: isLoading ? "Loading..." : orders.length,
+      subtitle: "All Orders",
+      icon: ShoppingCart,
+      bg: "#EAF0FE",
+      onClick: () => navigate('/myorders'),
+    },
+    {
+      title: "Total Revenue",
+      value: isLoading ? "Loading..." : `₹${totalRevenue}`,
+      subtitle: "All Revenue",
+      icon: IndianRupee,
+      bg: "#F3EEFE",
+      onClick: () => navigate('/totalrevenue'),
+    },
+  ];
+
+
+  const columns = [
+    {
+      label: "Customer",
+      key: "customer",
+      render: (row) => row.customer?.name || "N/A",
+    },
+    {
+      label: "Amount",
+      key: "grandTotal",
+      render: (row) => `₹${row.grandTotal}`,
+    },
+    {
+      label: "Date",
+      key: "createdAt",
+      render: (row) =>
+        new Date(row.createdAt).toLocaleDateString(),
+    },
+  ];
+
+  if (isError) {
+    return (
+      <Layout>
+        <p className="text-red-500">Failed to load dashboard data</p>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {stats.map((item, i) => (
+          <StatCard key={i} {...item} />
+        ))}
+      </div>
+
+      {/* Latest 10 Orders */}
+      <div className="mt-6">
+        <h2 className="text-lg font-semibold mb-4">
+          Latest 10 Orders
+        </h2>
+
+        <Table
+          columns={columns}
+          data={latestOrders}
+          loading={isLoading}
+        />
+      </div>
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
     </Layout>
   );
 };

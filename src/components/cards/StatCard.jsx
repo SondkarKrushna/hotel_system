@@ -7,6 +7,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, bg, onClick }) => {
   return (
     <div
       onClick={onClick}
+<<<<<<< HEAD
       className={`bg-white rounded-xl p-3 sm:p-4 border border-gray-200 
       shadow-sm transition h-full flex flex-col justify-between
       ${onClick ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" : ""}`}
@@ -17,6 +18,19 @@ const StatCard = ({ icon: Icon, title, value, subtitle, bg, onClick }) => {
         style={{ backgroundColor: bg }}
       >
         {Icon && <Icon size={18} className="text-black" />}
+=======
+      className={`bg-white rounded-xl p-4 border border-gray-200 shadow-sm transition 
+      ${onClick ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" : ""}`}
+    >
+      {/* Top */}
+      <div className="flex items-center justify-between">
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: bg }}
+        >
+          {Icon && <Icon size={20} className="text-black" />}
+        </div>
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
       </div>
 
       {/* Content */}
