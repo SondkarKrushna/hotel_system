@@ -1,25 +1,23 @@
 import { useState } from "react";
 import {
   LayoutDashboard,
-  CalendarCheck,
+  ShoppingCart,
+  FolderTree,
+  UtensilsCrossed,
+  Hotel,
+  UserCog,
   Users,
-  Clock,
-  Stethoscope,
-  FileText,
-  ClipboardList,
-  X,
   Menu,
+  X,
+  LogOut,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-
-  const isDoctor = location.pathname.startsWith("/doctor");
-  const basePath = isDoctor ? "/doctor" : "/receptionist";
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -33,69 +31,117 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     toast.success("Logged out successfully 👋");
 
     setTimeout(() => {
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
+<<<<<<< HEAD
+    }, 500);
+=======
     }, 500); // small delay so toast is visible
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
   };
 
-
-  // ✅ Define menuItems ONCE
-  const menuItems = isDoctor
-    ? [
-      { name: "Appointments", icon: CalendarCheck, link: `${basePath}/appointments` },
-      { name: "My Patients", icon: Users, link: `${basePath}/mypatient` },
-      { name: "Schedule", icon: Clock, link: `${basePath}/schedule` },
-      { name: "Doctors", icon: Stethoscope, link: `${basePath}/doctors` },
-      { name: "Invoice", icon: FileText, link: `${basePath}/invoice` },
-      { name: "Prescriptions", icon: ClipboardList, link: `${basePath}/prescription` },
-    ]
-    : [
-      { name: "Appointments", icon: CalendarCheck, link: `${basePath}/appointments` },
-      { name: "Add Patients", icon: Users, link: `${basePath}/add-patient` },
-      { name: "Doctors", icon: Stethoscope, link: `${basePath}/doctors` },
-      { name: "Patients", icon: Users, link: `${basePath}/mypatient` },
-      { name: "Payments", icon: Clock, link: `${basePath}/payments` },
-      { name: "Invoice & Prescriptions", icon: FileText, link: `${basePath}/invoice` },
-    ];
+  const menuItems = [
+    {
+      name: "Orders",
+      icon: ShoppingCart,
+      link: "/myorders",
+    },
+    {
+<<<<<<< HEAD
+      name: "Categories",
+      icon: FolderTree,
+      link: "/category",
+    },
+    {
+      name: "Dishes",
+      icon: UtensilsCrossed,
+      link: "/dishes",
+    },
+    {
+      name: "Hotels",
+      icon: Hotel,
+      link: "/allhotels",
+    },
+    {
+      name: "Staff",
+      icon: UserCog,
+      link: "/staff",
+    },
+    // {
+    //   name: "Users",
+    //   icon: Users,
+    //   link: "/users",
+=======
+      name: "Revenue",
+      icon: IndianRupee,
+      link: "/totalrevenue",
+    },
+    // {
+    //   name: "Food Menu",
+    //   icon: UtensilsCrossed,
+    //   link: "/menu",
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
+    // },
+  ];
 
   return (
-    <aside
+    <motion.aside
+      animate={{ width: collapsed ? 80 : 256 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className={`
-        fixed lg:sticky top-0 left-0 max-h-screen 
-        ${collapsed ? "w-20" : "w-64"}
+<<<<<<< HEAD
+        fixed inset-y-0 left-0
         bg-white border-r border-gray-200
-        z-40 transform transition-all duration-300
+        z-40 transform
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
+        lg:static lg:translate-x-0
         flex flex-col
       `}
+=======
+    fixed inset-y-0 left-0
+    ${collapsed ? "w-20" : "w-64"}
+    bg-white border-r border-gray-200
+    z-40 transform transition-transform duration-300
+    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:static lg:translate-x-0
+    flex flex-col
+  `}
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
     >
       {/* Header */}
-      <div className="p-4 flex items-center justify-between text-[#2D9AD9]">
+      <div className="p-4 flex items-center justify-between text-[#0d1827]">
         <div className="flex items-center gap-2 overflow-hidden">
+<<<<<<< HEAD
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.img
+                key="logo"
+=======
           {
-            !collapsed ? (
+            !collapsed && (
               <img
-                src="/images/techsuryalogo.png"
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
+                src="/images/logo_1.png"
                 alt="Tech Surya"
-                className={`transition-all duration-300 ${collapsed ? "w-10" : "w-36"}`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="w-36"
               />
-            ) : (
-              <img
-                src="/images/colapslogo.png"
-                alt="Tech Surya"
-                className={`transition-all duration-300 w-36`}
-              />
-            )
-          }
+            )}
+<<<<<<< HEAD
+          </AnimatePresence>
+=======
 
 
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:flex items-center justify-center w-9 h-9 rounded-md
-                      text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition"
+              text-gray-500 hover:text-gray-500 hover:bg-gray-100 transition"
           >
             <Menu size={22} />
           </button>
@@ -111,41 +157,37 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Nav */}
       <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
-        {!collapsed ? (
-          <p className="uppercase font-semibold text-[#E65100] text-[12px] px-3 mt-4 mb-2">
-            Menu
-          </p>
-        ) : (
-          <p className="uppercase font-semibold text-[#E65100] text-[20px] px-3 mt-4 mb-2">
-            ...
-          </p>)
-        }
         {/* Dashboard */}
         <NavLink
-          to={`${basePath}/dashboard`}
+          to={`/dashboard`}
           end
           onClick={() => setIsOpen(false)}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition
+            `flex items-center ${collapsed ? "justify-center" : "gap-3"
+            } px-4 py-2 rounded-lg text-sm transition
             ${isActive
-              ? "bg-[#2D9AD9] text-white"
-              : "text-[#2D9AD9] hover:bg-[#2D9AD9] hover:text-white"
+              ? "bg-[#0d1827] text-white"
+              : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
             }`
           }
           title={collapsed ? "Dashboard" : ""}
         >
           <LayoutDashboard size={20} />
-          {!collapsed && <span>Dashboard</span>}
-        </NavLink>
 
-        {!collapsed ? (
-          <p className="uppercase font-semibold text-[#2D9AD9] text-[12px] px-3 mt-4 mb-2">
-            Healthcare
-          </p>
-        ) : (
-          <p className="uppercase font-semibold text-[#2D9AD9] text-[20px] px-3 mt-4 mb-2">
-            ...
-          </p>)}
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span
+                key="dashboard-text"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                Dashboard
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </NavLink>
 
         {/* Dynamic Menu */}
         {menuItems.map((item, index) => {
@@ -157,62 +199,62 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               to={item.link}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition
+                `flex items-center ${collapsed ? "justify-center" : "gap-3"
+                } px-4 py-2 rounded-lg text-sm transition
                 ${isActive
-                  ? "bg-[#2D9AD9] text-white"
-                  : "text-[#2D9AD9] hover:bg-[#2D9AD9] hover:text-white"
+                  ? "bg-[#0d1827] text-white"
+                  : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
                 }`
               }
               title={collapsed ? item.name : ""}
             >
               <Icon size={20} />
-              {!collapsed && <span>{item.name}</span>}
+
+              <AnimatePresence>
+                {!collapsed && (
+                  <motion.span
+                    key={item.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {item.name}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </NavLink>
           );
         })}
       </nav>
+
       {/* Logout */}
       <div className="px-2 mt-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition
-                    text-red-600 hover:bg-red-50"
+          className={`w-full flex items-center ${collapsed ? "justify-center" : "gap-3"
+            } px-4 py-2 rounded-lg text-sm transition
+          text-red-600 hover:bg-red-50`}
           title={collapsed ? "Logout" : ""}
         >
           <LogOut size={20} />
-          {!collapsed && <span>Logout</span>}
+
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span
+                key="logout-text"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                Logout
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </div>
-
-
-      {/* Footer */}
-      <div className="p-4">
-        {!collapsed ? (
-          <div className="bg-[#2D9AD92B] rounded-xl p-4 text-center">
-            <p className="text-[15px] font-semibold text-[#2D9AD9]">
-              Need Help?
-            </p>
-            <p className="text-[12px] text-[#1E1E1EB8] mb-4">
-              Contact support team
-            </p>
-            <button className="w-full bg-[#5000FF] font-semibold text-white py-2 rounded-lg text-[12px] hover:opacity-90">
-              Get Support
-            </button>
-          </div>
-        ) : (
-          <div className="bg-[#2D9AD92B] rounded-xl p-1 text-center">
-
-            <button
-              className="w-full bg-[#5000FF] text-white py-2 rounded-full hover:opacity-90"
-              title="Get Support"
-            >
-              ?
-            </button>
-          </div>
-        )}
-
-      </div>
-    </aside>
+    </motion.aside>
   );
 };
 

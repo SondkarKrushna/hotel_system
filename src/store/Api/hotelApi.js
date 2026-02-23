@@ -2,20 +2,32 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const hotelApi = createApi({
   reducerPath: "hotelApi",
-   baseQuery: fetchBaseQuery({
-    baseUrl: `/api/hotels`,
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_BACKEND_URL || "https://hotelmanagement-vcsy.onrender.com",
     credentials: "include",
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth?.token;
+      if (token) headers.set("authorization", `Bearer ${token}`);
+      return headers;
+    },
   }),
+
   tagTypes: ["Hotels"],
+
   endpoints: (builder) => ({
     getHotels: builder.query({
-      query: () => `/hotels`,
+      query: () => `/api/hotels`,
+      providesTags: ["Hotels"],
+    }),
+    // ✅ NEW
+    getHotelById: builder.query({
+      query: (id) => `/api/hotels/${id}`,
       providesTags: ["Hotels"],
     }),
 
     addHotel: builder.mutation({
       query: (body) => ({
-        url: "/hotels",
+        url: "/api/hotels",
         method: "POST",
         body,
       }),
@@ -24,16 +36,23 @@ export const hotelApi = createApi({
 
     updateHotel: builder.mutation({
       query: ({ id, body }) => ({
-        url: `/hotels/${id}`,
+        url: `/api/hotels/${id}`,
         method: "PUT",
         body,
       }),
       invalidatesTags: ["Hotels"],
     }),
+    updateHotelStatus: builder.mutation({
+  query: ({ id, status }) => ({
+    url: `/api/hotels/${id}/approve`,
+    method: "PATCH",
+    body: { status },
+  }),
+}),
 
     deleteHotel: builder.mutation({
       query: (id) => ({
-        url: `/hotels/${id}`,
+        url: `/api/hotels/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Hotels"],
@@ -41,9 +60,12 @@ export const hotelApi = createApi({
   }),
 });
 
+// ✅ ADD THIS PART (IMPORTANT)
 export const {
   useGetHotelsQuery,
+  useGetHotelByIdQuery,
   useAddHotelMutation,
   useUpdateHotelMutation,
+  useUpdateHotelStatusMutation,
   useDeleteHotelMutation,
 } = hotelApi;

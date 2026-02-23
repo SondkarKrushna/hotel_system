@@ -1,39 +1,54 @@
 import { useLocation } from "react-router-dom";
 
-const StatCard = ({ img, title, value, subtitle, bg }) => {
+const StatCard = ({ icon: Icon, title, value, subtitle, bg, onClick }) => {
   const location = useLocation();
   const isDoctor = location.pathname.startsWith("/doctor");
 
   return (
-    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
+    <div
+      onClick={onClick}
+<<<<<<< HEAD
+      className={`bg-white rounded-xl p-3 sm:p-4 border border-gray-200 
+      shadow-sm transition h-full flex flex-col justify-between
+      ${onClick ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" : ""}`}
+    >
+      {/* Icon */}
+      <div
+        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
+        style={{ backgroundColor: bg }}
+      >
+        {Icon && <Icon size={18} className="text-black" />}
+=======
+      className={`bg-white rounded-xl p-4 border border-gray-200 shadow-sm transition 
+      ${onClick ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" : ""}`}
+    >
       {/* Top */}
       <div className="flex items-center justify-between">
         <div
           className="w-10 h-10 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: bg }}
         >
-          <img src={img} alt={title} className="w-5 h-5" />
+          {Icon && <Icon size={20} className="text-black" />}
         </div>
-
-        {isDoctor && (
-          <img src="/images/uil_statistics.png" alt="stats" className="w-5 h-5" />
-        )}
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
       </div>
 
-      {/* Value */}
-      <h2 className="text-lg sm:text-xl font-bold mt-3 truncate">
-        {value}
-      </h2>
+      {/* Content */}
+      <div className="mt-3">
+        <h2 className="text-base sm:text-xl font-bold truncate">
+          {value}
+        </h2>
 
-      {/* Title */}
-      <p className="text-gray-600 text-sm truncate">{title}</p>
-
-      {/* Subtitle */}
-      {subtitle && (
-        <p className="text-blue-500 text-xs mt-1 truncate">
-          {subtitle}
+        <p className="text-gray-600 text-xs sm:text-sm truncate">
+          {title}
         </p>
-      )}
+
+        {subtitle && (
+          <p className="text-blue-500 text-xs mt-1 truncate">
+            {subtitle}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

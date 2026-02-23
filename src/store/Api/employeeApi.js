@@ -21,9 +21,15 @@ export const employeeApi = createApi({
 
         // ✅ GET ALL EMPLOYEES
         getEmployees: builder.query({
+            query: () => ({
+                url: `api/staff/all`,
+            }),
+            providesTags: ["Employee"],
+        }),
+        // ✅ GET ALL EMPLOYEES by hotel
+        getHotelEmployees: builder.query({
             query: (hotelId) => ({
-                url: `/api/staff`,
-                params: { hotelId },
+                url: `api/staff/hotel/${hotelId}`,
             }),
             providesTags: ["Employee"],
         }),
@@ -46,8 +52,8 @@ export const employeeApi = createApi({
 
         // ✅ UPDATE EMPLOYEE
         updateEmployee: builder.mutation({
-            query: ({ id, ...body }) => ({
-                url: `/api/staff/${id}`,
+            query: ({ id, body }) => ({
+                url: `/api/staff/hotel/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -67,6 +73,7 @@ export const employeeApi = createApi({
 
 export const {
     useGetEmployeesQuery,
+    useGetHotelEmployeesQuery,
     useGetEmployeeByIdQuery,
     useCreateEmployeeMutation,
     useUpdateEmployeeMutation,

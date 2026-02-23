@@ -1,50 +1,37 @@
 import { useState, useMemo } from "react";
 import Layout from "../../components/layout/Layout";
 import Table from "../../components/tables/Table";
+import {
+  useGetEmployeesQuery,
+  useCreateEmployeeMutation,
+  useUpdateEmployeeMutation,
+  useDeleteEmployeeMutation,
+  useGetHotelEmployeesQuery,
+} from "../../store/Api/employeeApi";
+import { toast } from "react-toastify";
 
 const Employees = () => {
+  const [errors, setErrors] = useState({});
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 5;
+  const limit = 10;
+
+  // ✅ Get user role and hotel ID from localStorage
+  const userRole = useMemo(() => {
+    const user = JSON.parse(localStorage.getItem("adminUser"));
+    return user?.role;
+  }, []);
+
+  const hotelId = useMemo(() => {
+    const user = JSON.parse(localStorage.getItem("adminUser"));
+    return user?.hotel?._id || user?.hotel?.id;
+  }, []);
+
+  const isAdmin = userRole === "HOTEL_ADMIN";
+  const isSuperAdmin = userRole === "SUPER_ADMIN";
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
-
-  // ✅ STATIC EMPLOYEE DATA
-  const [employees, setEmployees] = useState([
-    {
-      _id: "1",
-      fullName: "Rahul Sharma",
-      email: "rahul@gmail.com",
-      phone: "9876543210",
-      role: "Manager",
-      createdAt: "2025-01-10",
-    },
-    {
-      _id: "2",
-      fullName: "Monika Nikam",
-      email: "monika@gmail.com",
-      phone: "9876500000",
-      role: "Receptionist",
-      createdAt: "2025-01-12",
-    },
-    {
-      _id: "3",
-      fullName: "Amit Patil",
-      email: "amit@gmail.com",
-      phone: "9998887776",
-      role: "Chef",
-      createdAt: "2025-01-15",
-    },
-    {
-      _id: "4",
-      fullName: "Neha Deshmukh",
-      email: "neha@gmail.com",
-      phone: "9123456789",
-      role: "Waiter",
-      createdAt: "2025-01-18",
-    },
-  ]);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -55,16 +42,62 @@ const Employees = () => {
     confirmPassword: "",
   });
 
-  // ✅ Search employees
+  // ✅ API Hooks - Get all employees (superadmin)
+  const { data: allData, isLoading: allLoading } = useGetEmployeesQuery(
+    undefined,
+    { skip: !isSuperAdmin }
+  );
+
+  // ✅ API Hooks - Get hotel employees (admin)
+  const { data: hotelData, isLoading: hotelLoading } = useGetHotelEmployeesQuery(
+    hotelId,
+    { skip: !isAdmin || !hotelId }
+  );
+
+  const [createEmployee] = useCreateEmployeeMutation();
+  const [updateEmployee] = useUpdateEmployeeMutation();
+  const [deleteEmployee] = useDeleteEmployeeMutation();
+
+  // ✅ Determine which data to use based on role
+  const data = isSuperAdmin ? allData : hotelData;
+  const isLoading = isSuperAdmin ? allLoading : hotelLoading;
+
+  const employees = useMemo(() => {
+    // Log to debug
+    console.log("isSuperAdmin:", isSuperAdmin, "isAdmin:", isAdmin, "data:", data);
+    
+    if (!data) return [];
+    
+    // Handle both response structures
+    const staffData = Array.isArray(data?.data) 
+      ? data.data 
+      : Array.isArray(data?.staff) 
+        ? data.staff 
+        : [];
+
+    if (!Array.isArray(staffData)) return [];
+
+    return staffData.map((emp) => ({
+      _id: emp._id,
+      fullName: emp.profile?.name || emp.name || "",
+      email: emp.profile?.email || emp.email || "",
+      phone: emp.phone || "",
+      role: emp.role || "",
+      username: emp.username || "",
+      hotelName: emp.hotel?.name || "", // For superadmin view
+    }));
+  }, [data]);
+
+  // ✅ Search
   const filteredEmployees = useMemo(() => {
     return employees.filter((emp) =>
       emp.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       emp.email?.toLowerCase().includes(search.toLowerCase()) ||
-      emp.role?.toLowerCase().includes(search.toLowerCase())
+      emp.role?.toLowerCase().includes(search.toLowerCase()) ||
+      (isSuperAdmin && emp.hotelName?.toLowerCase().includes(search.toLowerCase()))
     );
-  }, [employees, search]);
+  }, [employees, search, isSuperAdmin]);
 
-  // ✅ Pagination
   const totalPages = Math.ceil(filteredEmployees.length / limit);
 
   const paginatedEmployees = filteredEmployees.slice(
@@ -72,7 +105,7 @@ const Employees = () => {
     currentPage * limit
   );
 
-  // ✅ Open Add Modal
+  // ✅ Add
   const handleAdd = () => {
     setEditEmployee(null);
     setFormData({
@@ -86,7 +119,7 @@ const Employees = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Open Edit Modal
+  // ✅ Edit
   const handleEdit = (employee) => {
     setEditEmployee(employee);
     setFormData({
@@ -100,166 +133,202 @@ const Employees = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Delete Employee
-  const handleDelete = (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee?")) return;
+  // ✅ Delete
+  const handleDelete = async (id, name) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete this employee`
+    );
 
-    setEmployees((prev) => prev.filter((emp) => emp._id !== id));
-    alert("Employee deleted successfully!");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteEmployee(id).unwrap();
+      toast.success("Employee deleted successfully");
+    } catch (error) {
+      toast.error(error?.data?.message || "Delete failed");
+    }
   };
 
-  // ✅ Add / Update Employee
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    const newErrors = {};
 
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.role) {
-      return alert("All fields are required!");
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone is required";
+    } else if (!/^[0-9]{7,15}$/.test(formData.phone)) {
+      newErrors.phone = "Phone must be 7–15 digits";
+    }
+
+    if (!formData.role.trim()) {
+      newErrors.role = "Role is required";
     }
 
     if (!editEmployee) {
-      if (!formData.password || !formData.confirmPassword) {
-        return alert("Password and Confirm Password required!");
+      if (!formData.password) {
+        newErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
       }
 
       if (formData.password !== formData.confirmPassword) {
-        return alert("Passwords do not match!");
+        newErrors.confirmPassword = "Passwords do not match";
       }
-
-      const newEmployee = {
-        _id: Date.now().toString(),
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        role: formData.role,
-        createdAt: new Date().toISOString(),
-      };
-
-      setEmployees((prev) => [newEmployee, ...prev]);
-      alert("Employee added successfully!");
-    } else {
-      setEmployees((prev) =>
-        prev.map((emp) =>
-          emp._id === editEmployee._id
-            ? {
-                ...emp,
-                fullName: formData.fullName,
-                email: formData.email,
-                phone: formData.phone,
-                role: formData.role,
-              }
-            : emp
-        )
-      );
-
-      alert("Employee updated successfully!");
     }
 
-    setIsModalOpen(false);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  // ✅ Submit (Add + Update)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    try {
+      if (!editEmployee) {
+        await createEmployee({
+          username: formData.fullName,
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role,
+          password: formData.password,
+        }).unwrap();
+
+        toast.success("Staff added successfully");
+      } else {
+        await updateEmployee({
+          id: editEmployee._id,
+          body: {
+            username: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            role: formData.role,
+          },
+        }).unwrap();
+
+        toast.success("Staff updated successfully");
+      }
+
+      setIsModalOpen(false);
+      setEditEmployee(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Something went wrong");
+    }
   };
 
-  const columns = [
-    {
-      label: "Full Name",
-      key: "fullName",
-      render: (row) => row.fullName || "N/A",
-    },
-    {
-      label: "Email",
-      key: "email",
-      render: (row) => row.email || "N/A",
-    },
-    {
-      label: "Phone",
-      key: "phone",
-      render: (row) => row.phone || "N/A",
-    },
-    {
-      label: "Role",
-      key: "role",
-      render: (row) => row.role || "N/A",
-    },
-    {
-      label: "Actions",
-      key: "actions",
-      render: (row) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleEdit(row)}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
-          >
-            Edit
-          </button>
 
-          <button
-            onClick={() => handleDelete(row._id)}
-            className="px-3 py-1 bg-red-500 text-white rounded text-xs"
-          >
-            Delete
-          </button>
-        </div>
-      ),
-    },
-  ];
+const columns = [
+  { label: "Full Name", key: "fullName" },
+  { label: "Role", key: "role" },
+  { label: "Email", key: "email" },
+  { label: "Phone", key: "phone" },
+  ...(isSuperAdmin
+    ? [
+        {
+          label: "Hotel",
+          key: "hotelName",
+          render: (row) => row.hotelName || "N/A",
+        },
+      ]
+    : []),
+  ...(isAdmin
+    ? [
+        {
+          label: "Actions",
+          render: (row) => (
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleEdit(row)}
+                className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
+              >
+                Edit
+              </button>
 
+              <button
+                onClick={() => handleDelete(row._id, row.fullName)}
+                className="px-3 py-1 bg-red-500 text-white rounded text-xs"
+              >
+                Delete
+              </button>
+            </div>
+          ),
+        },
+      ]
+    : []),
+];
   return (
     <Layout>
-      {/* Header + Search + Add */}
-      <div className="mb-6 mt-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">Employees</h1>
-          <p className="text-sm text-gray-500">
-            Showing {filteredEmployees.length} employees
-          </p>
-        </div>
+      <div className="mb-6 mt-6 flex justify-between items-center">
+        <h1 className="text-xl font-semibold">
+          {isSuperAdmin ? "All Staff" : "Hotel Staff"}
+        </h1>
 
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Search employee..."
+            placeholder={isSuperAdmin ? "Search staff by name, email, hotel..." : "Search staff..."}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="border px-4 py-2 rounded w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-200 px-4 py-2 rounded"
           />
 
+        {isAdmin && (
           <button
             onClick={handleAdd}
             className="px-4 py-2 bg-green-600 text-white rounded"
           >
             + Add
           </button>
+        )}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="w-full overflow-x-auto">
-        <Table columns={columns} data={paginatedEmployees} />
-      </div>
+      <Table columns={columns} data={paginatedEmployees} loading={isLoading} />
 
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-6">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
+      {totalPages > 1 && (
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.max(prev - 1, 1))
+            }
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
 
-        <span className="px-4 py-2">
-          Page {currentPage} of {totalPages || 1}
-        </span>
+          <span className="px-4 py-2">
+            Page {currentPage} of {totalPages || 1}
+          </span>
 
-        <button
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) =>
+                Math.min(prev + 1, totalPages)
+              )
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       {isModalOpen && (
@@ -279,83 +348,139 @@ const Employees = () => {
             </button>
 
             <h2 className="text-xl font-semibold mb-4">
-              {editEmployee ? "Edit Employee" : "Add Employee"}
+              {editEmployee ? "Edit Staff" : "Add Staff"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
 
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
+              {/* Full Name */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={formData.fullName}
+                  onChange={(e) => {
+                    setFormData({ ...formData, fullName: e.target.value });
+                    setErrors({ ...errors, fullName: "" });
+                  }}
+                  className={`w-full px-4 py-2 rounded border ${errors.fullName ? "border-red-500" : "border-gray-200"
+                    }`}
+                />
+                {errors.fullName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.fullName}
+                  </p>
+                )}
+              </div>
 
-              <input
-                type="text"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
+              {/* Email */}
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    setErrors({ ...errors, email: "" });
+                  }}
+                  className={`w-full px-4 py-2 rounded border ${errors.email ? "border-red-500" : "border-gray-200"
+                    }`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
 
-              <input
-                type="text"
-                placeholder="Role (Manager, Chef, etc.)"
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
+              {/* Phone */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    setFormData({ ...formData, phone: e.target.value });
+                    setErrors({ ...errors, phone: "" });
+                  }}
+                  className={`w-full px-4 py-2 rounded border ${errors.phone ? "border-red-500" : "border-gray-200"
+                    }`}
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
 
-              {/* Password only for Add */}
+              {/* Role */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Role (Manager, Chef, etc.)"
+                  value={formData.role}
+                  onChange={(e) => {
+                    setFormData({ ...formData, role: e.target.value });
+                    setErrors({ ...errors, role: "" });
+                  }}
+                  className={`w-full px-4 py-2 rounded border ${errors.role ? "border-red-500" : "border-gray-200"
+                    }`}
+                />
+                {errors.role && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.role}
+                  </p>
+                )}
+              </div>
+
+              {/* Password Fields (Only on Add) */}
               {!editEmployee && (
                 <>
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    className="w-full border px-4 py-2 rounded"
-                  />
+                  <div>
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={formData.password}
+                      onChange={(e) => {
+                        setFormData({ ...formData, password: e.target.value });
+                        setErrors({ ...errors, password: "" });
+                      }}
+                      className={`w-full px-4 py-2 rounded border ${errors.password ? "border-red-500" : "border-gray-200"
+                        }`}
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.password}
+                      </p>
+                    )}
+                  </div>
 
-                  <input
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                    className="w-full border px-4 py-2 rounded"
-                  />
+                  <div>
+                    <input
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => {
+                        setFormData({ ...formData, confirmPassword: e.target.value });
+                        setErrors({ ...errors, confirmPassword: "" });
+                      }}
+                      className={`w-full px-4 py-2 rounded border ${errors.confirmPassword ? "border-red-500" : "border-gray-200"
+                        }`}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
+                  </div>
                 </>
               )}
-
+              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-2 bg-indigo-600 text-white rounded font-medium"
+                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded font-medium"
               >
-                {editEmployee ? "Update Employee" : "Add Employee"}
+                {editEmployee ? "Update Staff" : "Add Staff"}
               </button>
             </form>
           </div>
