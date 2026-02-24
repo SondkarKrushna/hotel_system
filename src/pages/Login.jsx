@@ -42,12 +42,23 @@ const Login = () => {
 
                 console.log("Login Success:", response);
 
+                // ✅ Ensure hotel data is properly stored
+                const userData = response.user;
+                console.log("User data from login:", userData);
+
                 dispatch(
                     setCredentials({
                         token: response.token,
-                        user: response.user,
+                        user: userData,
                     })
                 );
+
+                // ✅ Also store hotel ID in localStorage for backward compatibility
+                if (userData.hotel?._id) {
+                    localStorage.setItem("hotelId", userData.hotel._id);
+                } else if (userData.hotel?.id) {
+                    localStorage.setItem("hotelId", userData.hotel.id);
+                }
 
                 navigate("/dashboard");
 

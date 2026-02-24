@@ -319,22 +319,22 @@ const Hotels = () => {
 
   return (
     <Layout>
-      <div className="mt-6 mb-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">
+      <div className="mt-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-xl md:text-2xl font-semibold">
           Hotels ({filteredHotels.length})
         </h1>
 
-        <div className="flex gap-2">
+        <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border px-4 py-2 rounded"
+            className="border px-4 py-2 rounded text-sm md:text-base"
           />
           <button
             onClick={handleAdd}
-            className="px-4 py-2 bg-green-600 text-white rounded"
+            className="px-4 py-2 bg-green-600 text-white rounded text-sm md:text-base whitespace-nowrap"
           >
             + Add
           </button>
@@ -360,26 +360,25 @@ const Hotels = () => {
         </div>
       </div>
 
-      {/* Modal remains same as yours */}
       {/* Pagination */}
       {!isLoading && (
-        <div className="flex justify-end gap-2 mt-6">
+        <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
           >
             Previous
           </button>
 
-          <span className="px-4 py-2">
+          <span className="px-3 md:px-4 py-2 text-sm md:text-base">
             Page {currentPage} of {totalPages || 1}
           </span>
 
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
           >
             Next
           </button>
@@ -389,12 +388,12 @@ const Hotels = () => {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4 py-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative"
+            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto"
           >
             {/* Close Button */}
             <button
@@ -404,7 +403,7 @@ const Hotels = () => {
               ✕
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-lg md:text-xl font-semibold mb-4">
               {editHotel ? "Edit Hotel" : "Add Hotel"}
             </h2>
 
@@ -418,7 +417,7 @@ const Hotels = () => {
                     setFormData({ ...formData, name: e.target.value });
                     setErrors({ ...errors, name: "" });
                   }}
-                  className={`w-full border px-4 py-2 rounded ${errors.name ? "border-red-500" : "border-gray-200"
+                  className={`w-full border px-4 py-2 rounded text-sm ${errors.name ? "border-red-500" : "border-gray-200"
                     }`}
                 />
                 {errors.name && (
@@ -435,7 +434,7 @@ const Hotels = () => {
                     setFormData({ ...formData, email: e.target.value });
                     setErrors({ ...errors, email: "" });
                   }}
-                  className={`w-full border px-4 py-2 rounded ${errors.email ? "border-red-500" : "border-gray-200"
+                  className={`w-full border px-4 py-2 rounded text-sm ${errors.email ? "border-red-500" : "border-gray-200"
                     }`}
                 />
                 {errors.email && (
@@ -452,7 +451,7 @@ const Hotels = () => {
                     setFormData({ ...formData, phone: e.target.value });
                     setErrors({ ...errors, phone: "" });
                   }}
-                  className={`w-full border px-4 py-2 rounded ${errors.phone ? "border-red-500" : "border-gray-200"
+                  className={`w-full border px-4 py-2 rounded text-sm ${errors.phone ? "border-red-500" : "border-gray-200"
                     }`}
                 />
                 {errors.phone && (
@@ -468,10 +467,10 @@ const Hotels = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
-                  className="w-full border border-gray-200 px-4 py-2 rounded"
+                  className="w-full border border-gray-200 px-4 py-2 rounded text-sm"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <input
                     type="text"
@@ -481,7 +480,7 @@ const Hotels = () => {
                       setFormData({ ...formData, city: e.target.value });
                       setErrors({ ...errors, city: "" });
                     }}
-                    className={`w-full border px-4 py-2 rounded ${errors.city ? "border-red-500" : "border-gray-200"
+                    className={`w-full border px-4 py-2 rounded text-sm ${errors.city ? "border-red-500" : "border-gray-200"
                       }`}
                   />
                   {errors.city && (
@@ -497,7 +496,7 @@ const Hotels = () => {
                       setFormData({ ...formData, country: e.target.value });
                       setErrors({ ...errors, country: "" });
                     }}
-                    className={`w-full border px-4 py-2 rounded ${errors.country ? "border-red-500" : "border-gray-200"
+                    className={`w-full border px-4 py-2 rounded text-sm ${errors.country ? "border-red-500" : "border-gray-200"
                       }`}
                   />
                   {errors.country && (
@@ -517,7 +516,7 @@ const Hotels = () => {
                         setFormData({ ...formData, adminName: e.target.value });
                         setErrors({ ...errors, adminName: "" });
                       }}
-                      className={`w-full border px-4 py-2 rounded ${errors.adminName ? "border-red-500" : "border-gray-200"
+                      className={`w-full border px-4 py-2 rounded text-sm ${errors.adminName ? "border-red-500" : "border-gray-200"
                         }`}
                     />
                     {errors.adminName && (
@@ -534,7 +533,7 @@ const Hotels = () => {
                         setFormData({ ...formData, adminUsername: e.target.value });
                         setErrors({ ...errors, adminUsername: "" });
                       }}
-                      className={`w-full border px-4 py-2 rounded ${errors.adminUsername ? "border-red-500" : "border-gray-200"
+                      className={`w-full border px-4 py-2 rounded text-sm ${errors.adminUsername ? "border-red-500" : "border-gray-200"
                         }`}
                     />
                     {errors.adminUsername && (
@@ -547,7 +546,7 @@ const Hotels = () => {
               {/* Passwords only when adding a hotel */}
               {!editHotel && (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <input
                         type="password"
@@ -557,7 +556,7 @@ const Hotels = () => {
                           setFormData({ ...formData, adminPassword: e.target.value });
                           setErrors({ ...errors, adminPassword: "" });
                         }}
-                        className={`w-full border px-4 py-2 rounded ${errors.adminPassword ? "border-red-500" : "border-gray-200"
+                        className={`w-full border px-4 py-2 rounded text-sm ${errors.adminPassword ? "border-red-500" : "border-gray-200"
                           }`}
                       />
                       {errors.adminPassword && (
@@ -574,7 +573,7 @@ const Hotels = () => {
                           setFormData({ ...formData, confirmPassword: e.target.value });
                           setErrors({ ...errors, confirmPassword: "" });
                         }}
-                        className={`w-full border px-4 py-2 rounded ${errors.confirmPassword ? "border-red-500" : "border-gray-200"
+                        className={`w-full border px-4 py-2 rounded text-sm ${errors.confirmPassword ? "border-red-500" : "border-gray-200"
                           }`}
                       />
                       {errors.confirmPassword && (
@@ -588,7 +587,7 @@ const Hotels = () => {
               <button
                 type="submit"
                 disabled={addLoading || updateLoading}
-                className="w-full py-2 bg-indigo-600 text-white rounded font-medium disabled:opacity-50"
+                className="w-full py-2 bg-indigo-600 text-white rounded font-medium disabled:opacity-50 text-sm"
               >
                 {editHotel
                   ? updateLoading

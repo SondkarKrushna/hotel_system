@@ -3,6 +3,7 @@ import Layout from "../../components/layout/Layout";
 import Table from "../../components/tables/Table";
 import {
   useGetEmployeesQuery,
+  useGetHotelEmployeesQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
@@ -26,16 +27,62 @@ const Employees = () => {
     confirmPassword: "",
   });
 
-  // ✅ API Hooks
-  const hotelId = localStorage.getItem("hotelId");
-  const { data, isLoading, error } = useGetEmployeesQuery(hotelId);
+  // ✅ Get user role from localStorage
+  const userRole = useMemo(() => {
+    const user = JSON.parse(localStorage.getItem("adminUser"));
+    return user?.role;
+  }, []);
+
+  const hotelId = useMemo(() => {
+    const user = JSON.parse(localStorage.getItem("adminUser"));
+    return user?.hotel?._id || user?.hotel?.id || localStorage.getItem("hotelId");
+  }, []);
+
+  const isAdmin = userRole === "HOTEL_ADMIN";
+  const isSuperAdmin = userRole === "SUPER_ADMIN";
+
+  // ✅ Fetch employees based on role
+  const { data: allData, isLoading: allLoading, error: allError } = useGetEmployeesQuery(
+    undefined,
+    { skip: !isSuperAdmin }
+  );
+  const { data: hotelData, isLoading: hotelLoading, error: hotelError } = useGetHotelEmployeesQuery(
+    hotelId,
+    { skip: !isAdmin || !hotelId }
+  );
+
+  // Use appropriate data based on role
+  const data = isSuperAdmin ? allData : hotelData;
+  const isLoading = isSuperAdmin ? allLoading : hotelLoading;
+  const error = isSuperAdmin ? allError : hotelError;
   const [createEmployee] = useCreateEmployeeMutation();
   const [updateEmployee] = useUpdateEmployeeMutation();
   const [deleteEmployee] = useDeleteEmployeeMutation();
 
   const employees = useMemo(() => {
-    if (!Array.isArray(data?.data)) return [];
-    return data.data;
+    // Log to debug
+    console.log("isSuperAdmin:", isSuperAdmin, "isAdmin:", isAdmin, "data:", data);
+    
+    if (!data) return [];
+    
+    // Handle both response structures
+    const staffData = Array.isArray(data?.data) 
+      ? data.data 
+      : Array.isArray(data?.staff) 
+        ? data.staff 
+        : [];
+
+    if (!Array.isArray(staffData)) return [];
+
+    return staffData.map((emp) => ({
+      _id: emp._id,
+      fullName: emp.profile?.name || emp.name || "",
+      email: emp.profile?.email || emp.email || "",
+      phone: emp.phone || "",
+      role: emp.role || "",
+      username: emp.username || "",
+      hotelName: emp.hotel?.name || "", // For superadmin view
+    }));
   }, [data]);
 
   // ✅ Search
