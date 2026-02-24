@@ -110,7 +110,7 @@ const Hotels = () => {
 
     try {
       await updateHotelStatus({ id, status: newStatus }).unwrap();
-      alert("Status updated successfully!");
+      toast("Status updated successfully!");
     } catch (error) {
       alert(error?.data?.message || "Failed to update status");
     }
@@ -121,9 +121,9 @@ const Hotels = () => {
     if (!window.confirm("Are you sure you want to delete this hotel?")) return;
     try {
       await deleteHotel(id).unwrap();
-      alert("Hotel deleted successfully!");
+      toast("Hotel deleted successfully!");
     } catch (error) {
-      alert(error?.data?.message || "Failed to delete hotel");
+      toast(error?.data?.message || "Failed to delete hotel");
     }
   };
 
@@ -179,7 +179,7 @@ const Hotels = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("FORM SUBMITTED");
+    //console.log("FORM SUBMITTED");
 
     if (!validateForm()) return;
 
@@ -198,7 +198,8 @@ const Hotels = () => {
         }).unwrap();
 
         console.log("Add Response:", resp);
-        toast.success("Hotel added successfully");
+        //toast.success("Hotel added successfully");
+        toast.success(resp?.message || "Hotel updated successfully");
       } else {
         const resp = await updateHotel({
           id: editHotel._id,
@@ -220,7 +221,14 @@ const Hotels = () => {
       setEditHotel(null);
     } catch (error) {
       console.error("API ERROR:", error);
-      toast.error(error?.data?.message || "Something went wrong");
+
+      const errorMessage =
+        error?.data?.message ||     // backend message
+        error?.error ||             // fetchBaseQuery error
+        error?.message ||           // generic error
+        "Something went wrong";
+
+      toast.error(errorMessage);
     }
   };
 
@@ -345,51 +353,51 @@ const Hotels = () => {
       <div className="w-full overflow-x-auto">
         <div className="sm:text-base text-xs">
           {isLoading ? (
-  <div className="bg-white rounded-2xl shadow-md p-6">
+            <div className="bg-white rounded-2xl shadow-md p-6">
 
-    {/* Header Skeleton */}
-    <div className="grid grid-cols-6 gap-4 border-b pb-4 mb-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-4 w-24" />
-      ))}
-    </div>
+              {/* Header Skeleton */}
+              <div className="grid grid-cols-6 gap-4 border-b pb-4 mb-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4 w-24" />
+                ))}
+              </div>
 
-    {/* Rows Skeleton */}
-    <div className="space-y-4">
-      {Array.from({ length: 8 }).map((_, rowIndex) => (
-        <div
-          key={rowIndex}
-          className="grid grid-cols-6 gap-4 items-center"
-        >
-          {/* Hotel Name */}
-          <Skeleton className="h-4 w-32" />
+              {/* Rows Skeleton */}
+              <div className="space-y-4">
+                {Array.from({ length: 8 }).map((_, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className="grid grid-cols-6 gap-4 items-center"
+                  >
+                    {/* Hotel Name */}
+                    <Skeleton className="h-4 w-32" />
 
-          {/* Admin */}
-          <Skeleton className="h-4 w-24" />
+                    {/* Admin */}
+                    <Skeleton className="h-4 w-24" />
 
-          {/* City */}
-          <Skeleton className="h-4 w-20" />
+                    {/* City */}
+                    <Skeleton className="h-4 w-20" />
 
-          {/* Phone */}
-          <Skeleton className="h-4 w-28" />
+                    {/* Phone */}
+                    <Skeleton className="h-4 w-28" />
 
-          {/* Email */}
-          <Skeleton className="h-4 w-40" />
+                    {/* Email */}
+                    <Skeleton className="h-4 w-40" />
 
-          {/* Actions */}
-          <div className="flex gap-2">
-            <Skeleton className="h-7 w-14 rounded-md" />
-            <Skeleton className="h-7 w-14 rounded-md" />
-            <Skeleton className="h-7 w-14 rounded-md" />
-          </div>
-        </div>
-      ))}
-    </div>
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Skeleton className="h-7 w-14 rounded-md" />
+                      <Skeleton className="h-7 w-14 rounded-md" />
+                      <Skeleton className="h-7 w-14 rounded-md" />
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-  </div>
-) : (
-  <Table columns={columns} data={paginatedHotels} loading={false} />
-)}
+            </div>
+          ) : (
+            <Table columns={columns} data={paginatedHotels} loading={false} />
+          )}
         </div>
       </div>
 
