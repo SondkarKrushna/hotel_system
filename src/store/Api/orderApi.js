@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl = `${import.meta.env.VITE_BACKEND_URL}`;
+const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
@@ -10,7 +10,7 @@ export const orderApi = createApi({
     credentials: "include",
 
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
+      const token = getState()?.auth?.token;
 
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
@@ -20,9 +20,26 @@ export const orderApi = createApi({
     },
   }),
 
-  tagTypes: ["Orders"],
+  // ✅ Declare all tag types ONCE
+  tagTypes: ["Dashboard", "Orders"],
 
+  // ✅ Declare endpoints ONCE
   endpoints: (builder) => ({
+    
+    // 🏨 HOTEL ADMIN DASHBOARD
+    getHotelDashboard: builder.query({
+      query: (hotelId) => `/api/hotels/${hotelId}/dashboard`,
+      providesTags: ["Dashboard"],
+    }),
+
+    // 👑 SUPER ADMIN DASHBOARD
+    getSuperAdminDashboard: builder.query({
+      query: ({ page = 1, limit = 10 } = {}) =>
+        `/api/hotels/super/dashboard?page=${page}&limit=${limit}`,
+      providesTags: ["Dashboard"],
+    }),
+
+    // 📦 ORDERS LIST
     getOrders: builder.query({
       query: ({ page = 1, limit = 10 } = {}) =>
         `/api/orders?page=${page}&limit=${limit}`,
@@ -31,4 +48,8 @@ export const orderApi = createApi({
   }),
 });
 
-export const { useGetOrdersQuery } = orderApi;
+export const {
+  useGetOrdersQuery,
+  useGetHotelDashboardQuery,
+  useGetSuperAdminDashboardQuery,
+} = orderApi;

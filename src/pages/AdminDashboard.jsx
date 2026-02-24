@@ -1,342 +1,214 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import Layout from "../components/layout/Layout";
 import StatCard from "../components/cards/StatCard";
 import Table from "../components/tables/Table";
 import Skeleton from "../components/ui/Skeleton";
-import { ShoppingCart, IndianRupee, Users, Utensils } from "lucide-react";
-import { useGetOrdersQuery } from "../store/Api/orderApi";
+import { ShoppingCart, IndianRupee, Users, Building2 } from "lucide-react";
+import {
+  useGetHotelDashboardQuery,
+  useGetSuperAdminDashboardQuery,
+} from "../store/Api/orderApi";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [activeTab, setActiveTab] = useState("orders"); // Tab: orders, staff, dishes
+  const user = JSON.parse(localStorage.getItem("adminUser"));
+  const role = user?.role;
+  const hotelId = user?.hotel;
 
-  const { data, isLoading, isError } = useGetOrdersQuery({
-    page: 1,
-    limit: 10,
+  const isSuperAdmin = role === "SUPER_ADMIN";
+  console.log("hotelId",hotelId);
+  const {
+    data: hotelData,
+    isLoading: hotelLoading,
+  } = useGetHotelDashboardQuery(hotelId, {
+    skip: isSuperAdmin || !hotelId,
   });
 
-  // Handle both old structure (orders) and new structure (hotel dashboard)
-  const hotelData = data?.data?.hotel ? data.data : null;
-  console.log("dashboRD DATA  =",data)
-  const orders = Array.isArray(data?.data) ? data.data : [];
-  const staff = Array.isArray(hotelData?.staff) ? hotelData.staff : [];
-  const dishes = Array.isArray(hotelData?.dishes) ? hotelData.dishes : [];
-
-  const latestOrders = useMemo(() => {
-  return [...orders].sort(
-    (a, b) => new Date(b.orderedAt) - new Date(a.orderedAt)
+  const {
+    data: superData,
+    isLoading: superLoading,
+  } = useGetSuperAdminDashboardQuery(
+    { page: 1, limit: 10 },
+    { skip: !isSuperAdmin }
   );
-}, [orders]);
 
-  // Get stats from new API response
-  const totalOrders = hotelData?.summary?.counts?.orders || data?.summary?.totalOrders || 0;
-  const totalRevenue = hotelData?.summary?.financials?.totalRevenue || data?.summary?.totalRevenue || 0;
-  const totalStaff = hotelData?.summary?.counts?.staff || 0;
-  const totalDishes = hotelData?.summary?.counts?.dishes || 0;
+  const isLoading = isSuperAdmin ? superLoading : hotelLoading;
 
-  const stats = [
+  /* ================= SUPER ADMIN ================= */
+
+  const superStats = [
     {
-      title: "Total Orders",
-      value: isLoading ? "Loading..." : totalOrders,
-      icon: ShoppingCart,
-      bg: "#EAF0FE",
+      title: "Total Hotels",
+      value: superData?.summary?.totalHotels || 0,
+      icon: Building2,
+      bg: "#EEF2FF",
+    },
+    {
+      title: "Total Staff",
+      value: superData?.summary?.totalStaff || 0,
+      icon: Users,
+      bg: "#FFF4E6",
     },
     {
       title: "Total Revenue",
-      value: isLoading ? "Loading..." : `₹${totalRevenue}`,
+      value: `₹${superData?.summary?.totalRevenue || 0}`,
+      icon: IndianRupee,
+      bg: "#F3EEFE",
+    },
+    {
+      title: "Unique Customers",
+      value: superData?.summary?.totalUniqueCustomers || 0,
+      icon: ShoppingCart,
+      bg: "#E6F9F0",
+    },
+  ];
+
+  const hotelColumns = [
+    { label: "Hotel Name", key: "name" },
+    {
+      label: "Status",
+      render: (row) => (
+        <span
+          className={`px-2 py-1 rounded text-xs ${
+            row.status === "active"
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      label: "Admin",
+      render: (row) => row?.customer?.name || "N/A",
+    },
+    {
+      label: "Orders",
+      render: (row) => row.stats?.orderCount || 0,
+    },
+    {
+      label: "Revenue",
+      render: (row) => `₹${row.stats?.revenue || 0}`,
+    },
+  ];
+
+  /* ================= HOTEL ADMIN ================= */
+
+  const summary = hotelData?.data?.summary;
+  const hotel = hotelData?.data?.hotel;
+  const orders = hotelData?.data?.data?.orders || [];
+
+  const hotelStats = [
+    {
+      title: "Total Orders",
+      value: summary?.counts?.orders || 0,
+      icon: ShoppingCart,
+      bg: "#EEF2FF",
+    },
+    {
+      title: "Total Revenue",
+      value: `₹${summary?.financials?.totalRevenue || 0}`,
       icon: IndianRupee,
       bg: "#F3EEFE",
     },
     {
       title: "Total Staff",
-      value: isLoading ? "Loading..." : totalStaff,
+      value: summary?.counts?.staff || 0,
       icon: Users,
       bg: "#FFF4E6",
     },
     {
       title: "Total Dishes",
-      value: isLoading ? "Loading..." : totalDishes,
-      icon: Utensils,
+      value: summary?.counts?.dishes || 0,
+      icon: Building2,
       bg: "#E6F9F0",
     },
   ];
 
-  const columns = [
-  {
-    label: "Customer",
-    key: "customerName",
-    render: (row) => row.customerName || "N/A",
-  },
-  {
-    label: "Order Date",
-    key: "orderedAt",
-    render: (row) =>
-      new Date(row.orderedAt).toLocaleString("en-IN"),
-  },
-  {
-    label: "Status",
-    key: "status",
-    render: (row) => (
-      <span
-        className={`px-2 py-1 rounded text-xs ${
-          row.status === "billed"
-            ? "bg-green-100 text-green-700"
-            : "bg-yellow-100 text-yellow-700"
-        }`}
-      >
-        {row.status?.toUpperCase()}
-      </span>
-    ),
-  },
-  {
-    label: "Amount",
-    key: "grandTotal",
-    render: (row) => `₹${row.grandTotal}`,
-  },
-];
-
-  const staffColumns = [
+  const orderColumns = [
     {
-      label: "Name",
-      key: "profile",
-      render: (row) => row.profile?.name || "N/A",
+      label: "Customer",
+      render: (row) => row.customer.name || "N/A",
     },
     {
-      label: "Username",
-      key: "username",
-      render: (row) => row.username || "N/A",
+      label: "Order Date",
+      render: (row) =>
+        new Date(row.orderedAt).toLocaleString("en-IN"),
     },
     {
-      label: "Email",
-      key: "profile",
-      render: (row) => row.profile?.email || "N/A",
-    },
-    {
-      label: "Phone",
-      key: "phone",
-      render: (row) => row.phone || "N/A",
-    },
-  ];
-
-  const dishesColumns = [
-    {
-      label: "Dish Name",
-      key: "name",
-      render: (row) => row.name || "N/A",
-    },
-    {
-      label: "Type",
-      key: "type",
+      label: "Status",
       render: (row) => (
-        <span className={`px-2 py-1 rounded text-xs ${row.type === "veg" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-          {row.type?.charAt(0).toUpperCase() + row.type?.slice(1)}
+        <span
+          className={`px-2 py-1 rounded text-xs ${
+            row.status === "billed"
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {row.status}
         </span>
       ),
     },
     {
-      label: "Price",
-      key: "price",
-      render: (row) => `₹${row.price}`,
-    },
-    {
-      label: "Availability",
-      key: "isAvailable",
-      render: (row) => (
-        <span className={`px-2 py-1 rounded text-xs ${row.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-          {row.isAvailable ? "Available" : "Unavailable"}
-        </span>
-      ),
+      label: "Amount",
+      render: (row) => `₹${row.grandTotal}`,
     },
   ];
-
-  if (isError) {
-    return (
-      <Layout>
-        <p className="text-red-500">Failed to load dashboard data</p>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white p-4 rounded-xl shadow-sm"
-            >
-              <Skeleton className="h-5 w-24 mb-3" />
-              <Skeleton className="h-8 w-20" />
-            </div>
-          ))
-          : stats.map((item, i) => (
+      {/* ================= STATS ================= */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {(isSuperAdmin ? superStats : hotelStats).map((item, i) =>
+          isLoading ? (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ) : (
             <StatCard key={i} {...item} />
-          ))}
+          )
+        )}
       </div>
 
-      {/* Tabs */}
-      {hotelData && (
-        <div className="flex gap-4 mb-6 border-b">
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`px-4 py-2 font-medium transition ${activeTab === "orders"
-              ? "border-b-2 border-indigo-600 text-indigo-600"
-              : "text-gray-600 hover:text-gray-800"
-              }`}
-          >
-            Orders
-          </button>
-          <button
-            onClick={() => setActiveTab("staff")}
-            className={`px-4 py-2 font-medium transition ${activeTab === "staff"
-              ? "border-b-2 border-indigo-600 text-indigo-600"
-              : "text-gray-600 hover:text-gray-800"
-              }`}
-          >
-            Staff ({staff.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("dishes")}
-            className={`px-4 py-2 font-medium transition ${activeTab === "dishes"
-              ? "border-b-2 border-indigo-600 text-indigo-600"
-              : "text-gray-600 hover:text-gray-800"
-              }`}
-          >
-            Dishes ({dishes.length})
-          </button>
+      {/* ================= SUPER ADMIN ================= */}
+      {isSuperAdmin && (
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <h2 className="text-lg font-semibold mb-4">
+            Registered Hotels ({superData?.summary?.totalHotels || 0})
+          </h2>
+
+          <Table
+            columns={hotelColumns}
+            data={superData?.hotels || []}
+            loading={isLoading}
+          />
         </div>
       )}
 
-
-      {/* Content based on active tab */}
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-4">
-          {activeTab === "orders" && "Latest 10 Orders"}
-          {activeTab === "staff" && "Staff Members"}
-          {activeTab === "dishes" && "Available Dishes"}
-        </h2>
-
-        <div className="w-full overflow-x-auto">
-          <div className="sm:text-base text-xs">
-            {isLoading ? (
-              <div className="bg-white p-4 rounded-xl shadow-sm">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center mb-4"
-                  >
-                    <Skeleton className="h-4 w-1/4" />
-                    <Skeleton className="h-4 w-1/6" />
-                    <Skeleton className="h-4 w-1/6" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {activeTab === "orders" && (
-                  <Table
-                    columns={columns}
-                    data={latestOrders.slice(0, 10)}
-                    loading={isLoading}
-                  />
-                )}
-                {activeTab === "staff" && (
-                  <Table
-                    columns={staffColumns}
-                    data={staff}
-                    loading={isLoading}
-                  />
-                )}
-                {activeTab === "dishes" && (
-                  <Table
-                    columns={dishesColumns}
-                    data={dishes}
-                    loading={isLoading}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ✅ Popup Modal */}
-      {selectedOrder && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-          onClick={() => setSelectedOrder(null)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative
-                 animate-[fadeInScale_.25s_ease-out]"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedOrder(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 
-                   transition duration-200 text-xl"
-            >
-              ✕
-            </button>
-
-            {/* Header */}
-            <h2 className="text-xl font-semibold mb-1">
-              Order Details
-            </h2>
-            <p className="text-sm text-gray-500 mb-5">
-              Customer: {selectedOrder.customer?.customerName}
+      {/* ================= HOTEL ADMIN ================= */}
+      {!isSuperAdmin && (
+        <>
+          {/* Hotel Info */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <h2 className="text-xl font-semibold">{hotel?.name}</h2>
+            <p className="text-gray-500 text-sm">
+              {hotel?.address}, {hotel?.city}, {hotel?.country}
             </p>
-
-            {/* Items List */}
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-              {selectedOrder.items?.length ? (
-                selectedOrder.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center bg-gray-50 
-                         hover:bg-gray-100 transition 
-                         rounded-lg px-3 py-2"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Qty: {item.quantity}
-                      </p>
-                    </div>
-
-                    <span className="text-sm font-semibold text-gray-800">
-                      × {item.quantity}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-400">
-                  No items found
-                </p>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="mt-6 border-t pt-4 flex justify-between items-center">
-              <span className="text-gray-500 text-sm">
-                Grand Total
-              </span>
-              <span className="text-lg font-bold text-indigo-600">
-                ₹{selectedOrder.grandTotal}
-              </span>
-            </div>
           </div>
-        </div>
-      )}
 
-   </Layout>
+          {/* Orders Listing */}
+          <div className="bg-white rounded-xl shadow-sm p-4">
+            <h2 className="text-lg font-semibold mb-4">
+              Latest Orders
+            </h2>
+
+            <Table
+              columns={orderColumns}
+              data={orders}
+              loading={isLoading}
+            />
+          </div>
+        </>
+      )}
+    </Layout>
   );
 };
 
