@@ -2,6 +2,7 @@ import Layout from "../../components/layout/Layout";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import Table from "../../components/tables/Table"
+import Skeleton from "../../components/ui/Skeleton"
 import {
     MapPin,
     Phone,
@@ -49,8 +50,73 @@ const HotelDetails = () => {
     if (isLoading) {
         return (
             <Layout>
-                <div className="flex justify-center items-center min-h-screen">
-                    Loading...
+                <div className="bg-[#F2F8FF] min-h-screen p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        {/* LEFT SIDE SKELETON */}
+                        <div className="col-span-12 lg:col-span-4 space-y-4">
+
+                            {/* Profile Card */}
+                            <div className="bg-[#24435d] rounded p-6 text-center">
+                                <Skeleton className="w-20 h-20 rounded-full mx-auto mb-3 bg-gray-400/40" />
+                                <Skeleton className="h-4 w-32 mx-auto bg-gray-400/40" />
+                            </div>
+
+                            {/* Stats */}
+                            <div className="bg-white p-4 rounded grid grid-cols-2 gap-3">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="flex gap-3 items-center">
+                                        <Skeleton className="w-8 h-8 rounded" />
+                                        <div className="space-y-2 w-full">
+                                            <Skeleton className="h-3 w-16" />
+                                            <Skeleton className="h-4 w-10" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Contact Info */}
+                            <div className="bg-white p-4 rounded space-y-4">
+                                <Skeleton className="h-4 w-40" />
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="flex gap-3">
+                                        <Skeleton className="w-8 h-8 rounded-full" />
+                                        <div className="space-y-2 w-full">
+                                            <Skeleton className="h-3 w-20" />
+                                            <Skeleton className="h-4 w-full" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* RIGHT SIDE SKELETON */}
+                        <div className="col-span-12 lg:col-span-8">
+                            <div className="bg-white rounded-2xl shadow p-6 space-y-6">
+
+                                {/* Tabs */}
+                                <div className="flex gap-6 border-b pb-3">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <Skeleton key={i} className="h-4 w-20" />
+                                    ))}
+                                </div>
+
+                                {/* Table Skeleton */}
+                                <div className="space-y-4">
+                                    {[1, 2, 3, 4, 5].map((row) => (
+                                        <div key={row} className="grid grid-cols-4 gap-4">
+                                            <Skeleton className="h-4 w-full" />
+                                            <Skeleton className="h-4 w-full" />
+                                            <Skeleton className="h-4 w-full" />
+                                            <Skeleton className="h-4 w-full" />
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </Layout>
         );
@@ -141,8 +207,8 @@ const HotelDetails = () => {
             render: (row) => (
                 <span
                     className={`px-2 py-1 rounded text-xs font-medium ${row.status === "billed"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-yellow-100 text-yellow-600"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-yellow-100 text-yellow-600"
                         }`}
                 >
                     {row.status}

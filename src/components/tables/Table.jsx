@@ -1,3 +1,5 @@
+import Skeleton from "../ui/Skeleton";
+
 const Table = ({ columns = [], data = [], loading }) => {
   return (
     <>
@@ -19,14 +21,16 @@ const Table = ({ columns = [], data = [], loading }) => {
 
           <tbody>
             {loading ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-6 text-center text-gray-500"
-                >
-                  Loading data...
-                </td>
-              </tr>
+              // ✅ Skeleton Rows
+              Array.from({ length: 6 }).map((_, rowIndex) => (
+                <tr key={rowIndex} className="border-b border-gray-200">
+                  {columns.map((_, colIndex) => (
+                    <td key={colIndex} className="px-4 py-3">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : data.length === 0 ? (
               <tr>
                 <td
@@ -57,9 +61,23 @@ const Table = ({ columns = [], data = [], loading }) => {
       {/* ================= MOBILE VIEW ================= */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-8 text-gray-500">
-            Loading data...
-          </div>
+          // ✅ Mobile Skeleton Cards
+          Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3"
+            >
+              {columns.map((_, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between items-center"
+                >
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          ))
         ) : data.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No data found
