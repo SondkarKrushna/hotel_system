@@ -1,17 +1,10 @@
-<<<<<<< HEAD
 import { useMemo, useState } from "react";
-=======
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import StatCard from "../components/cards/StatCard";
 import Table from "../components/tables/Table";
-<<<<<<< HEAD
 import Skeleton from "../components/ui/Skeleton";
 import { ShoppingCart, IndianRupee, Users, Utensils } from "lucide-react";
-=======
-import { ShoppingCart, IndianRupee } from "lucide-react";
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 import { useGetOrdersQuery } from "../store/Api/orderApi";
 
 const Dashboard = () => {
@@ -156,7 +149,6 @@ const Dashboard = () => {
     );
   }
 
-<<<<<<< HEAD
   return (
     <Layout>
       {/* Stats */}
@@ -334,94 +326,7 @@ const Dashboard = () => {
         </div>
       )}
 
-=======
-  const navigate = useNavigate();
-
-  const { data, isLoading, isError } = useGetOrdersQuery({
-    page: 1,
-    limit: 10,
-  });
-
-  const orders = Array.isArray(data?.data) ? data.data : [];
-
-  const latestOrders = [...orders].reverse();
-
-
-  const totalRevenue = orders.reduce(
-    (sum, item) => sum + (item.grandTotal || 0),
-    0
-  );
-
-  const stats = [
-    {
-      title: "Total Orders",
-      value: isLoading ? "Loading..." : orders.length,
-      subtitle: "All Orders",
-      icon: ShoppingCart,
-      bg: "#EAF0FE",
-      onClick: () => navigate('/myorders'),
-    },
-    {
-      title: "Total Revenue",
-      value: isLoading ? "Loading..." : `₹${totalRevenue}`,
-      subtitle: "All Revenue",
-      icon: IndianRupee,
-      bg: "#F3EEFE",
-      onClick: () => navigate('/totalrevenue'),
-    },
-  ];
-
-
-  const columns = [
-    {
-      label: "Customer",
-      key: "customer",
-      render: (row) => row.customer?.name || "N/A",
-    },
-    {
-      label: "Amount",
-      key: "grandTotal",
-      render: (row) => `₹${row.grandTotal}`,
-    },
-    {
-      label: "Date",
-      key: "createdAt",
-      render: (row) =>
-        new Date(row.createdAt).toLocaleDateString(),
-    },
-  ];
-
-  if (isError) {
-    return (
-      <Layout>
-        <p className="text-red-500">Failed to load dashboard data</p>
-      </Layout>
-    );
-  }
-
-  return (
-    <Layout>
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {stats.map((item, i) => (
-          <StatCard key={i} {...item} />
-        ))}
-      </div>
-
-      {/* Latest 10 Orders */}
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-4">
-          Latest 10 Orders
-        </h2>
-
-        <Table
-          columns={columns}
-          data={latestOrders}
-          loading={isLoading}
-        />
-      </div>
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
-    </Layout>
+   </Layout>
   );
 };
 

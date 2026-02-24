@@ -4,14 +4,11 @@ import Register from "../Register";
 import AdminDashboard from "../AdminDashboard";
 import MyOrders from "../MyOrders";
 import TotalRevenue from "../TotalRevenue"; 
-<<<<<<< HEAD
 import Hotels from "../hotels/Hotels";
 import Employees from "../employee/Employees";
 import Dishes from "../dishes/Dishes"
 import Categories from "../Categories";
 import HotelDetails from "../hotels/HotelDetails";
-=======
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 
 const MainRoutes = () => {
   return (

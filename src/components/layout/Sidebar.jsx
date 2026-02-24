@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   LogOut,
+  IndianRupee,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
