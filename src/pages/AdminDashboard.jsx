@@ -80,7 +80,7 @@ const Dashboard = () => {
     },
     {
       label: "Admin",
-      render: (row) => row?.customer?.name || "N/A",
+      render: (row) => row?.admin?.username || "N/A",
     },
     {
       label: "Orders",
