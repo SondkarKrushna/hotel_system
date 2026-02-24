@@ -21,7 +21,7 @@ export const hotelApi = createApi({
     }),
     // ✅ NEW
     getHotelById: builder.query({
-      query: (id) => `/api/hotels/${id}`,
+      query: (id) => `/api/hotels/${id}/dashboard`,
       providesTags: ["Hotels"],
     }),
 

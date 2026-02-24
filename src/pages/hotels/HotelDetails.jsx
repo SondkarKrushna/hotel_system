@@ -1,8 +1,8 @@
 import Layout from "../../components/layout/Layout";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import Table from "../../components/tables/Table"
 import {
-    Building2,
     MapPin,
     Phone,
     Mail,
@@ -55,6 +55,7 @@ const HotelDetails = () => {
             </Layout>
         );
     }
+
     if (isError) {
         return (
             <Layout>
@@ -65,14 +66,54 @@ const HotelDetails = () => {
         );
     }
 
-    const hotel = data || {};
+    // ✅ Extract API Data Properly
+    const hotelData = data?.data?.hotel || {};
+    const adminData = data?.data?.admin || {};
+    const summary = data?.data?.summary || {};
+    const staff = data?.data?.data?.staff || [];
+    const menus = data?.data?.data?.dishes || [];
+    const customers = data?.data?.data?.customers || [];
+    const orders = []; // Not available in API yet
 
-    const staff = [];
-    const menus = [];
-    const orders = [];
-    const customers = [];
-    const revenue = 0;
-    // console.log("hotel data==",hotel.data.phone)
+    const totalOrders = summary?.counts?.orders || 0;
+    const totalRevenue = summary?.financials?.totalRevenue || 0;
+
+    const staffColumns = [
+        {
+            label: "Name",
+            key: "name",
+            render: (row) => row.profile?.name || "N/A",
+        },
+        {
+            label: "Email",
+            key: "email",
+            render: (row) => row.profile?.email || "N/A",
+        },
+    ];
+
+    const menuColumns = [
+        {
+            label: "Dish Name",
+            key: "name",
+        },
+        {
+            label: "Price",
+            key: "price",
+            render: (row) => `₹ ${row.price}`,
+        },
+    ];
+
+    const customerColumns = [
+        {
+            label: "Customer Name",
+            key: "name",
+        },
+        {
+            label: "Phone",
+            key: "phone",
+        },
+    ];
+
     return (
         <Layout>
             <div className="bg-[#F2F8FF] min-h-screen p-6">
@@ -85,34 +126,61 @@ const HotelDetails = () => {
                         <div className="bg-[#24435d] text-white rounded p-6 text-center">
                             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-3 overflow-hidden">
                                 <img
-                                    src={hotel?.data?.image || "/images/hotel.jpg"}
-                                    alt=""
+                                    src={"/images/hotel.jpg"}
+                                    alt="hotel"
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <h2 className="font-semibold text-lg">{hotel?.data?.name}</h2>
-                            <p className="text-sm">Hotel ID: {hotel?.data?.hotelId}</p>
+                            <h2 className="font-semibold text-lg">{hotelData?.name}</h2>
+                            {/* <p className="text-sm">Hotel ID: {hotelData?.id}</p> */}
                         </div>
 
                         {/* Quick Stats */}
                         <div className="bg-white p-4 rounded grid grid-cols-2 gap-3">
-                            <StatBox icon={Users} label="Total Staff" value={staff.length} />
-                            <StatBox icon={Utensils} label="Menus" value={menus.length} />
-                            <StatBox icon={ShoppingCart} label="Orders" value={orders.length} />
-                            <StatBox icon={DollarSign} label="Revenue" value={`₹ ${revenue}`} />
+                            <StatBox
+                                icon={Users}
+                                label="Total Staff"
+                                value={summary?.counts?.staff || 0}
+                            />
+                            <StatBox
+                                icon={Utensils}
+                                label="Menus"
+                                value={summary?.counts?.dishes || 0}
+                            />
+                            <StatBox
+                                icon={ShoppingCart}
+                                label="Orders"
+                                value={totalOrders}
+                            />
+                            <StatBox
+                                icon={DollarSign}
+                                label="Revenue"
+                                value={`₹ ${totalRevenue}`}
+                            />
                         </div>
 
                         {/* Contact Info */}
                         <div className="bg-white p-4 rounded space-y-3">
                             <h3 className="font-semibold">Contact Information</h3>
-                            <InfoItem icon={Phone} label="Phone" value={hotel?.data?.phone} />
-                            <InfoItem icon={Mail} label="Email" value={hotel?.data?.email} />
+
+                            <InfoItem
+                                icon={Phone}
+                                label="Phone"
+                                value={hotelData?.contact?.phone || adminData?.phone}
+                            />
+
+                            <InfoItem
+                                icon={Mail}
+                                label="Email"
+                                value={hotelData?.contact?.email}
+                            />
+
                             <InfoItem
                                 icon={MapPin}
                                 label="Address"
-                                value={`${hotel?.data?.address || ""}, ${hotel?.data?.city || ""}, ${hotel?.data?.country || ""}`}
-                            />                        </div>
-
+                                value={`${hotelData?.address || ""}, ${hotelData?.city || ""}, ${hotelData?.country || ""}`}
+                            />
+                        </div>
                     </div>
 
                     {/* ================= RIGHT SIDE ================= */}
@@ -120,10 +188,9 @@ const HotelDetails = () => {
 
                         <div className="bg-white rounded-2xl shadow p-6">
 
-                            {/* Tabs */}
-                            <div className="flex gap-6 border-b pb-3 text-sm font-semibold">
-
-                                {["staff", "menus", "orders", "revenue", "customers"].map(tab => (
+                            {/* ================= TABS ================= */}
+                            <div className="hidden md:flex gap-6 border-b pb-3 text-sm font-semibold">
+                                {["staff", "menus", "orders", "customers"].map(tab => (
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
@@ -135,69 +202,98 @@ const HotelDetails = () => {
                                         {tab}
                                     </button>
                                 ))}
-
+                            </div>
+                            {/* ✅ Mobile Tabs (Theme Matching) */}
+                            <div className="md:hidden bg-[#F5FAFF] rounded-2xl p-5 mb-4 border border-gray-100">
+                                <div className="grid grid-cols-2 gap-y-5 text-center text-sm font-semibold">
+                                    {["staff", "menus", "orders", "customers"].map(tab => (
+                                        <button
+                                            key={tab}
+                                            onClick={() => setActiveTab(tab)}
+                                            className={`capitalize transition-all duration-200 py-2 rounded-lg
+                                                ${activeTab === tab
+                                                    ? "bg-[#24435d] text-white shadow-sm"
+                                                    : "text-gray-600 hover:bg-blue-50 hover:text-[#24435d]"
+                                                }
+        `}
+                                        >
+                                            {tab}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* ================= TAB CONTENT ================= */}
-
                             <div className="mt-6">
 
                                 {/* Staff */}
                                 {activeTab === "staff" && (
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {staff.map((emp, index) => (
-                                            <div key={index} className="border p-4 rounded-lg">
-                                                <p className="font-semibold">{emp.name}</p>
-                                                <p className="text-sm text-gray-500">{emp.role}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <Table
+                                        columns={staffColumns}
+                                        data={staff}
+                                        loading={false}
+                                    />
                                 )}
 
                                 {/* Menus */}
                                 {activeTab === "menus" && (
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {menus.map((menu, index) => (
-                                            <div key={index} className="border p-4 rounded-lg">
-                                                <p className="font-semibold">{menu.name}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    ₹ {menu.price}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <Table
+                                        columns={menuColumns}
+                                        data={menus}
+                                        loading={false}
+                                    />
                                 )}
 
-                                {/* Orders */}
+                                {/* Orders (Dynamic count only for now) */}
                                 {activeTab === "orders" && (
-                                    <div className="space-y-4">
-                                        {orders.map((order, index) => (
-                                            <div key={index} className="border p-4 rounded-lg">
-                                                <p className="font-semibold">Order #{order.id}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    ₹ {order.total}
-                                                </p>
+                                    <div className="space-y-6">
+
+                                        {/* Cards */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                                            {/* Orders Card */}
+                                            <div className="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Total Orders</p>
+                                                    <h3 className="text-2xl font-bold text-[#24435d]">
+                                                        {totalOrders}
+                                                    </h3>
+                                                </div>
+                                                <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-100 text-[#24435d]">
+                                                    <ShoppingCart size={22} />
+                                                </div>
                                             </div>
-                                        ))}
+
+                                            {/* Revenue Card */}
+                                            <div className="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Total Revenue</p>
+                                                    <h3 className="text-2xl font-bold text-green-600">
+                                                        ₹ {totalRevenue.toLocaleString()}
+                                                    </h3>
+                                                </div>
+                                                <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-green-100 text-green-600">
+                                                    <DollarSign size={22} />
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
                                 )}
 
-                                {/* Revenue */}
-                                {activeTab === "revenue" && (
-                                    <div className="text-center text-2xl font-bold text-green-600">
-                                        Total Revenue: ₹ {revenue}
-                                    </div>
-                                )}
-
-                                {/* Customers */}
+                                {/* Customers (Not available in API yet) */}
                                 {activeTab === "customers" && (
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {customers.map((cust, index) => (
-                                            <div key={index} className="border p-4 rounded-lg">
-                                                <p className="font-semibold">{cust.name}</p>
-                                                <p className="text-sm text-gray-500">{cust.phone}</p>
-                                            </div>
-                                        ))}
+                                    <div className="w-full overflow-x-auto">
+                                        {customers.length === 0 ? (
+                                            <p className="text-gray-500 text-sm">No customers found</p>
+                                        ) : (
+                                            <Table
+                                                columns={customerColumns}
+                                                data={customers}
+                                                loading={false}
+                                            />
+                                        )}
                                     </div>
                                 )}
 
