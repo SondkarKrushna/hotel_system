@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import StatCard from "../components/cards/StatCard";
 import Table from "../components/tables/Table";
@@ -14,8 +15,10 @@ const Dashboard = () => {
   const role = user?.role;
   const hotelId = user?.hotel;
 
+  const navigate = useNavigate();
+
   const isSuperAdmin = role === "SUPER_ADMIN";
-  console.log("hotelId",hotelId);
+  // console.log("hotelId",hotelId);
   const {
     data: hotelData,
     isLoading: hotelLoading,
@@ -36,31 +39,33 @@ const Dashboard = () => {
   /* ================= SUPER ADMIN ================= */
 
   const superStats = [
-    {
-      title: "Total Hotels",
-      value: superData?.summary?.totalHotels || 0,
-      icon: Building2,
-      bg: "#EEF2FF",
-    },
-    {
-      title: "Total Staff",
-      value: superData?.summary?.totalStaff || 0,
-      icon: Users,
-      bg: "#FFF4E6",
-    },
-    {
-      title: "Total Revenue",
-      value: `₹${superData?.summary?.totalRevenue || 0}`,
-      icon: IndianRupee,
-      bg: "#F3EEFE",
-    },
-    {
-      title: "Unique Customers",
-      value: superData?.summary?.totalUniqueCustomers || 0,
-      icon: ShoppingCart,
-      bg: "#E6F9F0",
-    },
-  ];
+  {
+    title: "Total Hotels",
+    value: superData?.summary?.totalHotels || 0,
+    icon: Building2,
+    bg: "#EEF2FF",
+    onClick: () => navigate("/allhotels"),   
+  },
+  {
+    title: "Total Staff",
+    value: superData?.summary?.totalStaff || 0,
+    icon: Users,
+    bg: "#FFF4E6",
+    onClick: () => navigate("/staff"),       
+  },
+  {
+    title: "Total Revenue",
+    value: `₹${superData?.summary?.totalRevenue || 0}`,
+    icon: IndianRupee,
+    bg: "#F3EEFE",
+  },
+  {
+    title: "Unique Customers",
+    value: superData?.summary?.totalUniqueCustomers || 0,
+    icon: ShoppingCart,
+    bg: "#E6F9F0",
+  },
+];
 
   const hotelColumns = [
     { label: "Hotel Name", key: "name" },
@@ -80,7 +85,7 @@ const Dashboard = () => {
     },
     {
       label: "Admin",
-      render: (row) => row?.customer?.name || "N/A",
+      render: (row) => row?.admin?.username || "N/A",
     },
     {
       label: "Orders",
@@ -128,7 +133,7 @@ const Dashboard = () => {
   const orderColumns = [
     {
       label: "Customer",
-      render: (row) => row.customer.name || "N/A",
+      render: (row) => row?.admin?.username || "N/A",
     },
     {
       label: "Order Date",

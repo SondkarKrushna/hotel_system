@@ -6,14 +6,23 @@ import { useNavigate } from "react-router-dom";
 
 const Header = ({ onMenuClick }) => {
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const adminUser = JSON.parse(localStorage.getItem("adminUser"));
 
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
+  const role = adminUser?.role;
+
+  const dashboardTitle =
+    role === "superadmin"
+      ? "Super Admin Dashboard"
+      : role === "admin"
+        ? "Admin Dashboard"
+        : "Dashboard";
+
   return (
     <header className="bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
-      
+
       {/* Left */}
       <div className="flex items-center gap-3">
         <button
@@ -23,22 +32,23 @@ const Header = ({ onMenuClick }) => {
           <Menu size={24} />
         </button>
 
-        <h1 className="text-lg sm:text-xl font-semibold"
-        onClick={() => navigate('/dashboard')}
+        <h1
+          className="text-lg sm:text-xl font-semibold cursor-pointer"
+          onClick={() => navigate('/dashboard')}
         >
-          Admin Dashboard
+          {adminUser.role}
         </h1>
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-3 sm:gap-4">
-        
-        <div className="flex items-center gap-3 px-4 py-2 min-w-[160px] h-[58px] rounded-2xl relative">
-          
+
+        <div className="flex items-center gap-3 sm:px-4 py-2 h-[58px] rounded-2xl relative">
+
           {/* Name */}
-          <div className="flex flex-col leading-tight text-right ml-6 pl-6">
+          <div className="hidden sm:flex flex-col leading-tight text-right ml-6 pl-6">
             <span className="text-sm font-medium text-[#1E1E1E] truncate">
-              {user?.name || "Admin"}
+              {adminUser?.name || role || "Admin"}
             </span>
           </div>
 
