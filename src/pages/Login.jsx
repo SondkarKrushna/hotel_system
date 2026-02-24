@@ -20,7 +20,7 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+  
         let newErrors = {};
 
         if (!phone.trim()) {
