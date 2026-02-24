@@ -131,10 +131,13 @@ const Dashboard = () => {
   ];
 
   const orderColumns = [
-    {
-      label: "Customer",
-      render: (row) => row?.admin?.username || "N/A",
-    },
+ {
+  label: "Customer",
+  render: (row) => {
+    console.log("row==", row);
+    return row?.customer?.name || "N/A";
+  },
+},
     {
       label: "Order Date",
       render: (row) =>
