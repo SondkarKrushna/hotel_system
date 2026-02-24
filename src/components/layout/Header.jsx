@@ -36,7 +36,7 @@ const Header = ({ onMenuClick }) => {
           className="text-lg sm:text-xl font-semibold cursor-pointer"
           onClick={() => navigate('/dashboard')}
         >
-          {adminUser.role}
+          {adminUser.role === "SUPER_ADMIN" ? "Super Admin" : "Hotel Admin"}
         </h1>
       </div>
 
