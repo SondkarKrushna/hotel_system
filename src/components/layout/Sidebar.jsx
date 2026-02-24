@@ -1,23 +1,27 @@
 import { useState } from "react";
 import {
   LayoutDashboard,
-  ShoppingCart,
-  FolderTree,
-  UtensilsCrossed,
-  Hotel,
-  UserCog,
+  CalendarCheck,
   Users,
-  Menu,
+  Clock,
+  Stethoscope,
+  FileText,
+  ClipboardList,
   X,
-  LogOut,
+  Menu,
+  ShoppingCart,
+  IndianRupee,
+  UtensilsCrossed,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+
+  const basePath = "/";
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -32,11 +36,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     setTimeout(() => {
       navigate("/", { replace: true });
-<<<<<<< HEAD
-    }, 500);
-=======
     }, 500); // small delay so toast is visible
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
   };
 
   const menuItems = [
@@ -46,31 +46,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       link: "/myorders",
     },
     {
-<<<<<<< HEAD
-      name: "Categories",
-      icon: FolderTree,
-      link: "/category",
-    },
-    {
-      name: "Dishes",
-      icon: UtensilsCrossed,
-      link: "/dishes",
-    },
-    {
-      name: "Hotels",
-      icon: Hotel,
-      link: "/allhotels",
-    },
-    {
-      name: "Staff",
-      icon: UserCog,
-      link: "/staff",
-    },
-    // {
-    //   name: "Users",
-    //   icon: Users,
-    //   link: "/users",
-=======
       name: "Revenue",
       icon: IndianRupee,
       link: "/totalrevenue",
@@ -79,24 +54,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     //   name: "Food Menu",
     //   icon: UtensilsCrossed,
     //   link: "/menu",
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
     // },
   ];
 
   return (
-    <motion.aside
-      animate={{ width: collapsed ? 80 : 256 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
+    <aside
       className={`
-<<<<<<< HEAD
-        fixed inset-y-0 left-0
-        bg-white border-r border-gray-200
-        z-40 transform
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:static lg:translate-x-0
-        flex flex-col
-      `}
-=======
     fixed inset-y-0 left-0
     ${collapsed ? "w-20" : "w-64"}
     bg-white border-r border-gray-200
@@ -105,43 +68,27 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     lg:static lg:translate-x-0
     flex flex-col
   `}
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
     >
       {/* Header */}
       <div className="p-4 flex items-center justify-between text-[#0d1827]">
         <div className="flex items-center gap-2 overflow-hidden">
-<<<<<<< HEAD
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.img
-                key="logo"
-=======
           {
             !collapsed && (
               <img
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
                 src="/images/logo_1.png"
                 alt="Tech Surya"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="w-36"
+                className={`transition-all duration-300 ${collapsed ? "w-10" : "w-36"}`}
               />
             )}
-<<<<<<< HEAD
-          </AnimatePresence>
-=======
 
 
->>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:flex items-center justify-center w-9 h-9 rounded-md
-              text-gray-500 hover:text-gray-500 hover:bg-gray-100 transition"
+                      text-gray-500 hover:text-gray-500 hover:bg-gray-100 transition"
           >
             <Menu size={22} />
           </button>
@@ -157,6 +104,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Nav */}
       <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
+
         {/* Dashboard */}
         <NavLink
           to={`/dashboard`}
@@ -165,7 +113,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           className={({ isActive }) =>
             `flex items-center ${collapsed ? "justify-center" : "gap-3"
             } px-4 py-2 rounded-lg text-sm transition
-            ${isActive
+    ${isActive
               ? "bg-[#0d1827] text-white"
               : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
             }`
@@ -173,21 +121,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           title={collapsed ? "Dashboard" : ""}
         >
           <LayoutDashboard size={20} />
-
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span
-                key="dashboard-text"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Dashboard
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {!collapsed && <span>Dashboard</span>}
         </NavLink>
+
 
         {/* Dynamic Menu */}
         {menuItems.map((item, index) => {
@@ -199,8 +135,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               to={item.link}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
-                `flex items-center ${collapsed ? "justify-center" : "gap-3"
-                } px-4 py-2 rounded-lg text-sm transition
+                `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition
                 ${isActive
                   ? "bg-[#0d1827] text-white"
                   : "text-[#0d1827] hover:bg-[#0d1827b5] hover:text-white"
@@ -209,52 +144,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               title={collapsed ? item.name : ""}
             >
               <Icon size={20} />
-
-              <AnimatePresence>
-                {!collapsed && (
-                  <motion.span
-                    key={item.name}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {item.name}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {!collapsed && <span>{item.name}</span>}
             </NavLink>
           );
         })}
       </nav>
-
       {/* Logout */}
       <div className="px-2 mt-4">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center ${collapsed ? "justify-center" : "gap-3"
-            } px-4 py-2 rounded-lg text-sm transition
-          text-red-600 hover:bg-red-50`}
+          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition
+                    text-red-600 hover:bg-red-50"
           title={collapsed ? "Logout" : ""}
         >
           <LogOut size={20} />
-
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span
-                key="logout-text"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Logout
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {!collapsed && <span>Logout</span>}
         </button>
       </div>
-    </motion.aside>
+
+    </aside>
   );
 };
 
