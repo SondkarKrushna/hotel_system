@@ -19,15 +19,16 @@ const Dashboard = () => {
 
   // Handle both old structure (orders) and new structure (hotel dashboard)
   const hotelData = data?.data?.hotel ? data.data : null;
+  console.log("dashboRD DATA  =",data)
   const orders = Array.isArray(data?.data) ? data.data : [];
   const staff = Array.isArray(hotelData?.staff) ? hotelData.staff : [];
   const dishes = Array.isArray(hotelData?.dishes) ? hotelData.dishes : [];
 
   const latestOrders = useMemo(() => {
-    return [...orders].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-  }, [orders]);
+  return [...orders].sort(
+    (a, b) => new Date(b.orderedAt) - new Date(a.orderedAt)
+  );
+}, [orders]);
 
   // Get stats from new API response
   const totalOrders = hotelData?.summary?.counts?.orders || data?.summary?.totalOrders || 0;
@@ -63,29 +64,38 @@ const Dashboard = () => {
   ];
 
   const columns = [
-    {
-      label: "Customer",
-      key: "customer",
-      render: (row) => row.customer?.name || "N/A",
-    },
-    {
-      label: "Items",
-      key: "items",
-      render: (row) => (
-        <button
-          onClick={() => setSelectedOrder(row)}
-          className="text-gray-600 underline text-sm"
-        >
-          View
-        </button>
-      ),
-    },
-    {
-      label: "Amount",
-      key: "grandTotal",
-      render: (row) => `₹${row.grandTotal}`,
-    },
-  ];
+  {
+    label: "Customer",
+    key: "customerName",
+    render: (row) => row.customerName || "N/A",
+  },
+  {
+    label: "Order Date",
+    key: "orderedAt",
+    render: (row) =>
+      new Date(row.orderedAt).toLocaleString("en-IN"),
+  },
+  {
+    label: "Status",
+    key: "status",
+    render: (row) => (
+      <span
+        className={`px-2 py-1 rounded text-xs ${
+          row.status === "billed"
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-700"
+        }`}
+      >
+        {row.status?.toUpperCase()}
+      </span>
+    ),
+  },
+  {
+    label: "Amount",
+    key: "grandTotal",
+    render: (row) => `₹${row.grandTotal}`,
+  },
+];
 
   const staffColumns = [
     {
@@ -279,7 +289,7 @@ const Dashboard = () => {
               Order Details
             </h2>
             <p className="text-sm text-gray-500 mb-5">
-              Customer: {selectedOrder.customer?.name}
+              Customer: {selectedOrder.customer?.customerName}
             </p>
 
             {/* Items List */}

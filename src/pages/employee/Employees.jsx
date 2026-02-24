@@ -16,7 +16,7 @@ const Employees = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  // ✅ Get user role and hotel ID from localStorage
+  // ✅ Get user role and hotel ID from localStorage and Redux
   const userRole = useMemo(() => {
     const user = JSON.parse(localStorage.getItem("adminUser"));
     return user?.role;
@@ -24,9 +24,10 @@ const Employees = () => {
 
   const hotelId = useMemo(() => {
     const user = JSON.parse(localStorage.getItem("adminUser"));
-    return user?.hotel?._id || user?.hotel?.id;
+    const hotel = user?.hotel || user?.hotel || localStorage.getItem("hotelId");
+    console.log("hotelId from localStorage:", hotel);
+    return hotel;
   }, []);
-
   const isAdmin = userRole === "HOTEL_ADMIN";
   const isSuperAdmin = userRole === "SUPER_ADMIN";
 
@@ -34,10 +35,11 @@ const Employees = () => {
   const [editEmployee, setEditEmployee] = useState(null);
 
   const [formData, setFormData] = useState({
+    username: "",
     fullName: "",
     email: "",
     phone: "",
-    role: "",
+    // role: "",
     password: "",
     confirmPassword: "",
   });
@@ -65,14 +67,14 @@ const Employees = () => {
   const employees = useMemo(() => {
     // Log to debug
     console.log("isSuperAdmin:", isSuperAdmin, "isAdmin:", isAdmin, "data:", data);
-    
+
     if (!data) return [];
-    
+
     // Handle both response structures
-    const staffData = Array.isArray(data?.data) 
-      ? data.data 
-      : Array.isArray(data?.staff) 
-        ? data.staff 
+    const staffData = Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.staff)
+        ? data.staff
         : [];
 
     if (!Array.isArray(staffData)) return [];
@@ -82,7 +84,7 @@ const Employees = () => {
       fullName: emp.profile?.name || emp.name || "",
       email: emp.profile?.email || emp.email || "",
       phone: emp.phone || "",
-      role: emp.role || "",
+      // role: emp.role || "",
       username: emp.username || "",
       hotelName: emp.hotel?.name || "", // For superadmin view
     }));
@@ -93,7 +95,7 @@ const Employees = () => {
     return employees.filter((emp) =>
       emp.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       emp.email?.toLowerCase().includes(search.toLowerCase()) ||
-      emp.role?.toLowerCase().includes(search.toLowerCase()) ||
+      // emp.role?.toLowerCase().includes(search.toLowerCase()) ||
       (isSuperAdmin && emp.hotelName?.toLowerCase().includes(search.toLowerCase()))
     );
   }, [employees, search, isSuperAdmin]);
@@ -112,7 +114,7 @@ const Employees = () => {
       fullName: "",
       email: "",
       phone: "",
-      role: "",
+      // role: "",
       password: "",
       confirmPassword: "",
     });
@@ -123,10 +125,11 @@ const Employees = () => {
   const handleEdit = (employee) => {
     setEditEmployee(employee);
     setFormData({
+      username: employee.username,
       fullName: employee.fullName,
       email: employee.email,
       phone: employee.phone,
-      role: employee.role,
+      // role: employee.role,
       password: "",
       confirmPassword: "",
     });
@@ -167,10 +170,13 @@ const Employees = () => {
     } else if (!/^[0-9]{7,15}$/.test(formData.phone)) {
       newErrors.phone = "Phone must be 7–15 digits";
     }
-
-    if (!formData.role.trim()) {
-      newErrors.role = "Role is required";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
     }
+
+    // if (!formData.role.trim()) {
+    //   newErrors.role = "Role is required";
+    // }
 
     if (!editEmployee) {
       if (!formData.password) {
@@ -197,11 +203,11 @@ const Employees = () => {
     try {
       if (!editEmployee) {
         await createEmployee({
-          username: formData.fullName,
+          username: formData.username,
           name: formData.fullName,
           email: formData.email,
           phone: formData.phone,
-          role: formData.role,
+          // role: formData.role,
           password: formData.password,
         }).unwrap();
 
@@ -210,13 +216,13 @@ const Employees = () => {
         await updateEmployee({
           id: editEmployee._id,
           body: {
-            username: formData.fullName,
+            username: formData.username,
+            name: formData.fullName,
             email: formData.email,
             phone: formData.phone,
-            role: formData.role,
+            // role: formData.role,
           },
         }).unwrap();
-
         toast.success("Staff updated successfully");
       }
 
@@ -228,22 +234,22 @@ const Employees = () => {
   };
 
 
-const columns = [
-  { label: "Full Name", key: "fullName" },
-  { label: "Role", key: "role" },
-  { label: "Email", key: "email" },
-  { label: "Phone", key: "phone" },
-  ...(isSuperAdmin
-    ? [
+  const columns = [
+    { label: "Full Name", key: "fullName" },
+    // { label: "Role", key: "role" },
+    { label: "Email", key: "email" },
+    { label: "Phone", key: "phone" },
+    ...(isSuperAdmin
+      ? [
         {
           label: "Hotel",
           key: "hotelName",
           render: (row) => row.hotelName || "N/A",
         },
       ]
-    : []),
-  ...(isAdmin
-    ? [
+      : []),
+    ...(isAdmin
+      ? [
         {
           label: "Actions",
           render: (row) => (
@@ -265,35 +271,35 @@ const columns = [
           ),
         },
       ]
-    : []),
-];
+      : []),
+  ];
   return (
     <Layout>
-      <div className="mb-6 mt-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">
+      <div className="mb-6 mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-xl md:text-2xl font-semibold">
           {isSuperAdmin ? "All Staff" : "Hotel Staff"}
         </h1>
 
-        <div className="flex gap-2">
+        <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
           <input
             type="text"
-            placeholder={isSuperAdmin ? "Search staff by name, email, hotel..." : "Search staff..."}
+            placeholder={isSuperAdmin ? "Search staff..." : "Search staff..."}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="border border-gray-200 px-4 py-2 rounded"
+            className="border border-gray-200 px-4 py-2 rounded text-sm md:text-base"
           />
 
-        {isAdmin && (
-          <button
-            onClick={handleAdd}
-            className="px-4 py-2 bg-green-600 text-white rounded"
-          >
-            + Add
-          </button>
-        )}
+          {isAdmin && (
+            <button
+              onClick={handleAdd}
+              className="px-4 py-2 bg-indigo-600 text-white rounded text-sm md:text-base whitespace-nowrap"
+            >
+              + Add
+            </button>
+          )}
         </div>
       </div>
 
@@ -301,18 +307,18 @@ const columns = [
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
           <button
             onClick={() =>
               setCurrentPage((prev) => Math.max(prev - 1, 1))
             }
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
           >
             Previous
           </button>
 
-          <span className="px-4 py-2">
+          <span className="px-3 md:px-4 py-2 text-sm md:text-base">
             Page {currentPage} of {totalPages || 1}
           </span>
 
@@ -323,7 +329,7 @@ const columns = [
               )
             }
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
           >
             Next
           </button>
@@ -333,12 +339,12 @@ const columns = [
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4 py-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative"
+            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={() => setIsModalOpen(false)}
@@ -347,7 +353,7 @@ const columns = [
               ✕
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-lg md:text-xl font-semibold mb-4">
               {editEmployee ? "Edit Staff" : "Add Staff"}
             </h2>
 
@@ -369,6 +375,25 @@ const columns = [
                 {errors.fullName && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.fullName}
+                  </p>
+                )}
+              </div>
+              {/* Username */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={(e) => {
+                    setFormData({ ...formData, username: e.target.value });
+                    setErrors({ ...errors, username: "" });
+                  }}
+                  className={`w-full px-4 py-2 rounded border ${errors.username ? "border-red-500" : "border-gray-200"
+                    }`}
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.username}
                   </p>
                 )}
               </div>
@@ -414,7 +439,7 @@ const columns = [
               </div>
 
               {/* Role */}
-              <div>
+              {/* <div>
                 <input
                   type="text"
                   placeholder="Role (Manager, Chef, etc.)"
@@ -431,7 +456,7 @@ const columns = [
                     {errors.role}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               {/* Password Fields (Only on Add) */}
               {!editEmployee && (

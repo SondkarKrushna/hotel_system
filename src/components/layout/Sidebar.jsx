@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -20,6 +20,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const userRole = useMemo(() => {
+      const user = JSON.parse(localStorage.getItem("adminUser"));
+      return user?.role;
+    }, []);
+    const isAdmin = userRole === "HOTEL_ADMIN";
 
   const handleLogout = () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
@@ -53,24 +58,28 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       icon: UtensilsCrossed,
       link: "/dishes",
     },
-    {
-      name: "Hotels",
-      icon: Hotel,
-      link: "/allhotels",
-    },
+   ...(!isAdmin
+    ? [
+        {
+          name: "Hotels",
+          icon: Hotel,
+          link: "/allhotels",
+        },
+      ]
+    : []),
     {
       name: "Staff",
       icon: UserCog,
       link: "/staff",
     },
-     {
+    // {
     //   name: "Users",
     //   icon: Users,
     //   link: "/users",
-      name: "Revenue",
-      icon: IndianRupee,
-      link: "/totalrevenue",
-    },
+    //   name: "Revenue",
+    //   icon: IndianRupee,
+    //   link: "/totalrevenue",
+    // },
     // {
     //   name: "Food Menu",
     //   icon: UtensilsCrossed,

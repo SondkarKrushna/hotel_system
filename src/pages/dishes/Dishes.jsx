@@ -172,13 +172,13 @@ const Dishes = () => {
                                   setSelectedDish(row);
                                   setOpenModal(true);
                               }}
-                              className="text-blue-600"
+                              className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
                           >
                               Edit
                           </button>
                           <button
                               onClick={() => handleDelete(row.id)}
-                              className="text-red-600"
+                              className="px-3 py-1 bg-red-500 text-white rounded text-xs"
                           >
                               Delete
                           </button>
@@ -192,16 +192,16 @@ const Dishes = () => {
 return (
     <Layout>
         {/* Header */}
-        <div className="flex justify-between items-center mt-6 mb-6">
-            <h1 className="text-xl font-semibold">All Dishes</h1>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-6 mb-6 gap-4">
+            <h1 className="text-xl md:text-2xl font-semibold">All Dishes</h1>
 
-            <div className="flex gap-3">
+            <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
                 <input
                     type="text"
                     placeholder="Search dish..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="border px-4 py-2 rounded"
+                    className="border px-4 py-2 rounded text-sm md:text-base"
                 />
                 {isAdmin && (
                     <button
@@ -209,7 +209,7 @@ return (
                             setSelectedDish(null);
                             setOpenModal(true);
                         }}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded text-sm md:text-base whitespace-nowrap"
                     >
                         + Add Dish
                     </button>
@@ -224,20 +224,19 @@ return (
         />
 
         {/* ✅ Pagination */}
-
         {totalPages > 1 && (
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
                 <button
                     onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
                 >
                     Previous
                 </button>
 
-                <span className="px-4 py-2">
+                <span className="px-3 md:px-4 py-2 text-sm md:text-base">
                     Page {currentPage} of {totalPages || 1}
                 </span>
 
@@ -248,7 +247,7 @@ return (
                         )
                     }
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
                 >
                     Next
                 </button>
@@ -258,12 +257,12 @@ return (
         {/* ✅ Modal */}
         {openModal && (
             <div
-                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
                 onClick={() => setOpenModal(false)}
             >
                 <div
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-white p-6 rounded-xl w-full max-w-md"
+                    className="bg-white p-6 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
                 >
                     <h2 className="text-lg font-semibold mb-4">
                         {selectedDish ? "Edit Dish" : "Add Dish"}
@@ -310,7 +309,7 @@ return (
                         <select
                             name="type"
                             defaultValue={selectedDish?.type || "veg"}
-                            className="border w-full px-3 py-2 rounded"
+                            className="border w-full px-3 py-2 rounded text-sm"
                         >
                             <option value="veg">Veg</option>
                             <option value="non-veg">Non Veg</option>
@@ -322,7 +321,7 @@ return (
                                 selectedDish?.isAvailable?.toString() ||
                                 "true"
                             }
-                            className="border w-full px-3 py-2 rounded"
+                            className="border w-full px-3 py-2 rounded text-sm"
                         >
                             <option value="true">Available</option>
                             <option value="false">Not Available</option>
@@ -334,7 +333,7 @@ return (
                             defaultValue={
                                 selectedDish?.category?.id || ""
                             }
-                            className={`border w-full px-3 py-2 rounded ${errors.category
+                            className={`border w-full px-3 py-2 rounded text-sm ${errors.category
                                 ? "border-red-500"
                                 : "border-gray-300"
                                 }`}
@@ -362,14 +361,14 @@ return (
                             <button
                                 type="button"
                                 onClick={() => setOpenModal(false)}
-                                className="px-4 py-2 bg-gray-200 rounded"
+                                className="px-4 py-2 bg-gray-200 rounded text-sm"
                             >
                                 Cancel
                             </button>
 
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-indigo-600 text-white rounded"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded text-sm"
                             >
                                 {selectedDish ? "Update" : "Create"}
                             </button>

@@ -22,15 +22,20 @@ export const employeeApi = createApi({
         // ✅ GET ALL EMPLOYEES
         getEmployees: builder.query({
             query: () => ({
-                url: `api/staff/all`,
+                url: `/api/staff/all`,
             }),
             providesTags: ["Employee"],
         }),
         // ✅ GET ALL EMPLOYEES by hotel
         getHotelEmployees: builder.query({
-            query: (hotelId) => ({
-                url: `api/staff/hotel/${hotelId}`,
-            }),
+            query: (hotelId) => {
+                //console.log("HotelId in API:", hotelId);
+
+                return {
+                    url: `/api/staff/hotel/${hotelId}`,
+                    method: "GET",
+                };
+            },
             providesTags: ["Employee"],
         }),
 
