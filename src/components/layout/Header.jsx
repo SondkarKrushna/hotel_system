@@ -21,7 +21,7 @@ const Header = ({ onMenuClick }) => {
         : "Dashboard";
 
   return (
-    <header className="bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
+    <header className="bg-white sticky top-0 z-50 border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
 
       {/* Left */}
       <div className="flex items-center gap-3">
