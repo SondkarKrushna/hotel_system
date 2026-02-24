@@ -39,33 +39,33 @@ const Dashboard = () => {
   /* ================= SUPER ADMIN ================= */
 
   const superStats = [
-  {
-    title: "Total Hotels",
-    value: superData?.summary?.totalHotels || 0,
-    icon: Building2,
-    bg: "#EEF2FF",
-    onClick: () => navigate("/allhotels"),   
-  },
-  {
-    title: "Total Staff",
-    value: superData?.summary?.totalStaff || 0,
-    icon: Users,
-    bg: "#FFF4E6",
-    onClick: () => navigate("/staff"),       
-  },
-  {
-    title: "Total Revenue",
-    value: `₹${superData?.summary?.totalRevenue || 0}`,
-    icon: IndianRupee,
-    bg: "#F3EEFE",
-  },
-  {
-    title: "Unique Customers",
-    value: superData?.summary?.totalUniqueCustomers || 0,
-    icon: ShoppingCart,
-    bg: "#E6F9F0",
-  },
-];
+    {
+      title: "Total Hotels",
+      value: superData?.summary?.totalHotels || 0,
+      icon: Building2,
+      bg: "#EEF2FF",
+      onClick: () => navigate("/allhotels"),
+    },
+    {
+      title: "Total Staff",
+      value: superData?.summary?.totalStaff || 0,
+      icon: Users,
+      bg: "#FFF4E6",
+      onClick: () => navigate("/staff"),
+    },
+    {
+      title: "Total Revenue",
+      value: `₹${superData?.summary?.totalRevenue || 0}`,
+      icon: IndianRupee,
+      bg: "#F3EEFE",
+    },
+    {
+      title: "Unique Customers",
+      value: superData?.summary?.totalUniqueCustomers || 0,
+      icon: ShoppingCart,
+      bg: "#E6F9F0",
+    },
+  ];
 
   const hotelColumns = [
     { label: "Hotel Name", key: "name" },
@@ -73,11 +73,10 @@ const Dashboard = () => {
       label: "Status",
       render: (row) => (
         <span
-          className={`px-2 py-1 rounded text-xs ${
-            row.status === "active"
+          className={`px-2 py-1 rounded text-xs ${row.status === "active"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
-          }`}
+            }`}
         >
           {row.status}
         </span>
@@ -131,13 +130,13 @@ const Dashboard = () => {
   ];
 
   const orderColumns = [
- {
-  label: "Customer",
-  render: (row) => {
-    console.log("row==", row);
-    return row?.customer?.name || "N/A";
-  },
-},
+    {
+      label: "Customer",
+      render: (row) => {
+        console.log("row==", row);
+        return row?.customer?.name || "N/A";
+      },
+    },
     {
       label: "Order Date",
       render: (row) =>
@@ -147,11 +146,10 @@ const Dashboard = () => {
       label: "Status",
       render: (row) => (
         <span
-          className={`px-2 py-1 rounded text-xs ${
-            row.status === "billed"
+          className={`px-2 py-1 rounded text-xs ${row.status === "billed"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
-          }`}
+            }`}
         >
           {row.status}
         </span>

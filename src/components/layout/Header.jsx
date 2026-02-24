@@ -1,24 +1,20 @@
 import { Menu } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ProfileMenu from "../ProfileMenu";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Header = ({ onMenuClick }) => {
   const location = useLocation();
-  const adminUser = JSON.parse(localStorage.getItem("adminUser"));
-
-  const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
+  const [showProfile, setShowProfile] = useState(false);
 
+  const adminUser = JSON.parse(localStorage.getItem("adminUser"));
   const role = adminUser?.role;
 
-  const dashboardTitle =
-    role === "superadmin"
-      ? "Super Admin Dashboard"
-      : role === "admin"
-        ? "Admin Dashboard"
-        : "Dashboard";
+  // ✅ Get first letter dynamically
+  const firstLetter = adminUser?.name
+    ? adminUser.name.charAt(0).toUpperCase()
+    : "A";
 
   return (
     <header className="bg-white sticky top-0 z-50 border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
@@ -34,44 +30,34 @@ const Header = ({ onMenuClick }) => {
 
         <h1
           className="text-lg sm:text-xl font-semibold cursor-pointer"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate("/dashboard")}
         >
-          {adminUser.role === "SUPER_ADMIN" ? "Super Admin" : "Hotel Admin"}
+          {role === "SUPER_ADMIN" ? "Super Admin" : "Hotel Admin"}
         </h1>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="relative">
+        {/* Dynamic Profile Circle */}
+        <div
+  onClick={() => setShowProfile(!showProfile)}
+  className="w-10 h-10 rounded-full 
+             bg-[#0B1F3A] 
+             flex items-center justify-center 
+             text-[#C6A75E] 
+             font-semibold 
+             cursor-pointer shadow-md 
+             hover:scale-105 transition"
+>
+  {firstLetter}
+</div>
 
-        <div className="flex items-center gap-3 sm:px-4 py-2 h-[58px] rounded-2xl relative">
-
-          {/* Name */}
-          <div className="hidden sm:flex flex-col leading-tight text-right ml-6 pl-6">
-            <span className="text-sm font-medium text-[#1E1E1E] truncate">
-              {adminUser?.name || role || "Admin"}
-            </span>
+        {/* Dropdown */}
+        {showProfile && (
+          <div className="absolute right-0 top-14 z-50">
+            <ProfileMenu />
           </div>
-
-          {/* Profile Image */}
-          <div
-            className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 cursor-pointer"
-            onClick={() => setShowProfile(!showProfile)}
-          >
-            <img
-              src="/images/user.png"
-              alt="admin"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Dropdown */}
-          {showProfile && (
-            <div className="absolute right-0 top-16 z-50">
-              <ProfileMenu />
-            </div>
-          )}
-
-        </div>
+        )}
       </div>
     </header>
   );
