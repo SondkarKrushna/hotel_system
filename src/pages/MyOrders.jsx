@@ -15,23 +15,24 @@ const MyOrders = () => {
     page: 1,
     limit: 1000,
   });
+  console.log("orders data==",data)
 
   const allOrders = useMemo(() => {
-    if (!Array.isArray(data?.data)) return [];
+  if (!Array.isArray(data?.data)) return [];
 
-    return [...data.data].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-  }, [data]);
+  return [...data.data].sort(
+    (a, b) => new Date(b.orderedAt) - new Date(a.orderedAt)
+  );
+}, [data]);
 
   // ✅ Search across all records
   const filteredOrders = useMemo(() => {
-    return allOrders.filter((order) =>
-      order.customer?.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [allOrders, search]);
+  return allOrders.filter((order) =>
+    order.customerName
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
+}, [allOrders, search]);
 
   // ✅ Frontend pagination
   const totalPages = Math.ceil(filteredOrders.length / limit);
@@ -42,37 +43,23 @@ const MyOrders = () => {
   );
 
   const columns = [
-    {
-      label: "Customer",
-      key: "customer",
-      render: (row) => row.customer?.name || "N/A",
-    },
-    {
-      label: "Items",
-      key: "items",
-      render: (row) => (
-        <button
-          onClick={() => setSelectedOrder(row)}
-          className="text-gray-600 underline text-sm"
-        >
-          View
-        </button>
-      ),
-    },
-    {
-
-      label: "Amount",
-      key: "grandTotal",
-      render: (row) => `₹${row.grandTotal}`,
-    },
-    // {
-    //   label: "Date",
-    //   key: "createdAt",
-    //   render: (row) =>
-    //     new Date(row.createdAt).toLocaleDateString(),
-    // },
-
-  ];
+  {
+    label: "Customer",
+    key: "customerName",
+    render: (row) => row.customerName || "N/A",
+  },
+  {
+    label: "Amount",
+    key: "grandTotal",
+    render: (row) => `₹${row.grandTotal}`,
+  },
+  {
+    label: "Date",
+    key: "orderedAt",
+    render: (row) =>
+      new Date(row.orderedAt).toLocaleDateString(),
+  },
+];
 
   if (isError) {
     return (
@@ -199,7 +186,7 @@ const MyOrders = () => {
               Order Details
             </h2>
             <p className="text-sm text-gray-500 mb-5">
-              Customer: {selectedOrder.customer?.name}
+              Customer: {selectedorder.customerName}
             </p>
 
             {/* Items List */}
