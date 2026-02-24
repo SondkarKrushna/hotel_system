@@ -2,6 +2,10 @@ import { Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import ProfileMenu from "../ProfileMenu";
 import { useState } from "react";
+<<<<<<< HEAD
+import { useNavigate } from "react-router-dom";
+=======
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
 
 const Header = ({ onMenuClick }) => {
   const location = useLocation();
@@ -9,6 +13,11 @@ const Header = ({ onMenuClick }) => {
 
   const [showProfile, setShowProfile] = useState(false);
 
+<<<<<<< HEAD
+  const navigate = useNavigate();
+
+=======
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
   return (
     <header className="bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 py-2 shadow-sm">
       
@@ -21,7 +30,9 @@ const Header = ({ onMenuClick }) => {
           <Menu size={24} />
         </button>
 
-        <h1 className="text-lg sm:text-xl font-semibold">
+        <h1 className="text-lg sm:text-xl font-semibold"
+        onClick={() => navigate('/dashboard')}
+        >
           Admin Dashboard
         </h1>
       </div>
@@ -32,7 +43,11 @@ const Header = ({ onMenuClick }) => {
         <div className="flex items-center gap-3 px-4 py-2 min-w-[160px] h-[58px] rounded-2xl relative">
           
           {/* Name */}
+<<<<<<< HEAD
+          <div className="flex flex-col leading-tight text-right ml-6 pl-6">
+=======
           <div className="flex flex-col leading-tight text-right">
+>>>>>>> 8d7bf0b0f71c57eb9a06e99423c7a209f8f1c5d7
             <span className="text-sm font-medium text-[#1E1E1E] truncate">
               {user?.name || "Admin"}
             </span>
