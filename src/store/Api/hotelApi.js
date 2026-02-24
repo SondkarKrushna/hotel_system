@@ -43,12 +43,13 @@ export const hotelApi = createApi({
       invalidatesTags: ["Hotels"],
     }),
     updateHotelStatus: builder.mutation({
-  query: ({ id, status }) => ({
-    url: `/api/hotels/${id}/approve`,
-    method: "PATCH",
-    body: { status },
-  }),
-}),
+      query: ({ id, status }) => ({
+        url: `/api/hotels/${id}/approve`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Hotels"],
+    }),
 
     deleteHotel: builder.mutation({
       query: (id) => ({
