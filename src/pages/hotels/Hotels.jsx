@@ -35,8 +35,7 @@ const Hotels = () => {
   });
 
   // ✅ Fetch Hotels
-
-  const { data, isLoading, isError } = useGetHotelsQuery();
+  const { data, isLoading, isError, refetch } = useGetHotelsQuery();
 
   const [addHotel, { isLoading: addLoading }] = useAddHotelMutation();
   const [updateHotel, { isLoading: updateLoading }] = useUpdateHotelMutation();
@@ -110,9 +109,14 @@ const Hotels = () => {
 
     try {
       await updateHotelStatus({ id, status: newStatus }).unwrap();
-      toast("Status updated successfully!");
+      toast.success("Status updated successfully! ✅");
+      
+      // ✅ Refetch hotels data to update UI
+      setTimeout(() => {
+        refetch();
+      }, 500);
     } catch (error) {
-      alert(error?.data?.message || "Failed to update status");
+      toast.error(error?.data?.message || "Failed to update status");
     }
   };
 
