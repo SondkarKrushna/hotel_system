@@ -183,11 +183,11 @@ const Login = () => {
                         </div>
 
                         {/* Forgot Password */}
-                        <div className="text-right">
+                        {/* <div className="text-right">
                             <p className="text-sm text-gray-500 hover:text-slate-700 cursor-pointer">
                                 Forgot Password?
                             </p>
-                        </div>
+                        </div> */}
 
                         {/* Login Button */}
                         {errors.apiError && (
