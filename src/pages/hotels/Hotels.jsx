@@ -345,18 +345,51 @@ const Hotels = () => {
       <div className="w-full overflow-x-auto">
         <div className="sm:text-base text-xs">
           {isLoading ? (
-            <div className="bg-white p-4 rounded-xl shadow-sm">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex justify-between items-center mb-4">
-                  <Skeleton className="h-4 w-1/4" />
-                  <Skeleton className="h-4 w-1/4" />
-                  <Skeleton className="h-4 w-1/4" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Table columns={columns} data={paginatedHotels} loading={isLoading} />
-          )}
+  <div className="bg-white rounded-2xl shadow-md p-6">
+
+    {/* Header Skeleton */}
+    <div className="grid grid-cols-6 gap-4 border-b pb-4 mb-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-4 w-24" />
+      ))}
+    </div>
+
+    {/* Rows Skeleton */}
+    <div className="space-y-4">
+      {Array.from({ length: 8 }).map((_, rowIndex) => (
+        <div
+          key={rowIndex}
+          className="grid grid-cols-6 gap-4 items-center"
+        >
+          {/* Hotel Name */}
+          <Skeleton className="h-4 w-32" />
+
+          {/* Admin */}
+          <Skeleton className="h-4 w-24" />
+
+          {/* City */}
+          <Skeleton className="h-4 w-20" />
+
+          {/* Phone */}
+          <Skeleton className="h-4 w-28" />
+
+          {/* Email */}
+          <Skeleton className="h-4 w-40" />
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Skeleton className="h-7 w-14 rounded-md" />
+            <Skeleton className="h-7 w-14 rounded-md" />
+            <Skeleton className="h-7 w-14 rounded-md" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+) : (
+  <Table columns={columns} data={paginatedHotels} loading={false} />
+)}
         </div>
       </div>
 
