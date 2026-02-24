@@ -73,7 +73,7 @@ const HotelDetails = () => {
     const staff = data?.data?.data?.staff || [];
     const menus = data?.data?.data?.dishes || [];
     const customers = data?.data?.data?.customers || [];
-    const orders = []; // Not available in API yet
+    const orders = data?.data?.data?.orders || [];
 
     const totalOrders = summary?.counts?.orders || 0;
     const totalRevenue = summary?.financials?.totalRevenue || 0;
@@ -111,6 +111,49 @@ const HotelDetails = () => {
         {
             label: "Phone",
             key: "phone",
+        },
+    ];
+
+    const orderColumns = [
+        {
+            label: "Customer",
+            key: "customer",
+            render: (row) => row.customer?.name || "N/A",
+        },
+        {
+            label: "Phone",
+            key: "phone",
+            render: (row) => row.customer?.phone || "N/A",
+        },
+        {
+            label: "Items",
+            key: "items",
+            render: (row) => row.items?.length || 0,
+        },
+        {
+            label: "Amount",
+            key: "grandTotal",
+            render: (row) => `₹ ${row.grandTotal}`,
+        },
+        {
+            label: "Status",
+            key: "status",
+            render: (row) => (
+                <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${row.status === "billed"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}
+                >
+                    {row.status}
+                </span>
+            ),
+        },
+        {
+            label: "Date",
+            key: "createdAt",
+            render: (row) =>
+                new Date(row.createdAt).toLocaleDateString(),
         },
     ];
 
@@ -248,7 +291,7 @@ const HotelDetails = () => {
                                 {activeTab === "orders" && (
                                     <div className="space-y-6">
 
-                                        {/* Cards */}
+                                        {/* ===== Summary Cards (KEEP AS IT IS) ===== */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                                             {/* Orders Card */}
@@ -277,6 +320,15 @@ const HotelDetails = () => {
                                                 </div>
                                             </div>
 
+                                        </div>
+
+                                        {/* ===== Orders Table (NEW) ===== */}
+                                        <div className="w-full overflow-x-auto">
+                                            <Table
+                                                columns={orderColumns}
+                                                data={orders}
+                                                loading={false}
+                                            />
                                         </div>
 
                                     </div>
