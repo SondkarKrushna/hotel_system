@@ -15,18 +15,29 @@ const Categories = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const limit = 10;
+  
+    const user = useMemo(() => {
+  return JSON.parse(localStorage.getItem("adminUser"));
+}, []);
+console.log("user==",user)
 
-  const { data, isLoading, isError } = useGetCategoriesQuery();
+const userRole = user?.role;
+const hotelId = user?.hotel;
+
+const isSuperAdmin = userRole === "SUPER_ADMIN";
+const isHotelAdmin = userRole === "HOTEL_ADMIN";
+const isAdmin  = userRole === "HOTEL_ADMIN";
+
+  const { data, isLoading, isError } = useGetCategoriesQuery({
+  role: userRole,
+  hotelId,
+  page: currentPage,
+  limit,
+});
   const [createCategory] = useCreateCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
 
-  const userRole = useMemo(() => {
-        const user = JSON.parse(localStorage.getItem("adminUser"));
-        return user?.role;
-    }, []);
-    const isAdmin = userRole === "HOTEL_ADMIN";
-    console.log("user role-===0",isAdmin)
   const allCategories = useMemo(() => {
     if (!Array.isArray(data?.data)) return [];
     return [...data.data].sort(
@@ -56,6 +67,8 @@ const Categories = () => {
     const payload = {
       name: formData.get("name"),
     };
+
+      // no hotel-specific attachment here (server handles scoping)
 
     if (selectedCategory) {
       await updateCategory({ id: selectedCategory.id, ...payload });

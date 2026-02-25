@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl = import.meta.env.VITE_BACKEND_URL || "https://hotelmanagement-vcsy.onrender.com";
+const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const dishApi = createApi({
   reducerPath: "dishApi",
@@ -14,7 +14,7 @@ export const dishApi = createApi({
     },
   }),
   tagTypes: ["Dish"],
-  endpoints: (builder) => ({
+  endpoints: (builder) =>({
     getDishes: builder.query({
       query: () => "/api/dish",
       providesTags: ["Dish"],

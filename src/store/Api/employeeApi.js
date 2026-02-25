@@ -84,3 +84,19 @@ export const {
     useUpdateEmployeeMutation,
     useDeleteEmployeeMutation,
 } = employeeApi;
+
+
+/* 
+Todays Updates:
+Hotel Management Project-
+
+-design saprate dashboards for superadmin and hotel admin.
+also implement apis.
+- display orders data according to role super admin and hotel admin
+- manage staff crud for hotel admin side with listing,add,edit
+- manage all pages responsive
+- implement Approve hotelds functionality in super admin panel
+- testing all pages both panel
+
+
+*/

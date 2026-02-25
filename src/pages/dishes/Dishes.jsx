@@ -27,15 +27,25 @@ const Dishes = () => {
     const [createDish] = useCreateDishMutation();
     const [updateDish] = useUpdateDishMutation();
     const [deleteDish] = useDeleteDishMutation();
-    const userRole = useMemo(() => {
-        const user = JSON.parse(localStorage.getItem("adminUser"));
-        return user?.role;
+
+    const user = useMemo(() => {
+        return JSON.parse(localStorage.getItem("adminUser"));
     }, []);
+    console.log("user==", user)
+
+    const userRole = user?.role;
+    const hotelId = user?.hotel;
+
+    const isSuperAdmin = userRole === "SUPER_ADMIN";
+    const isHotelAdmin = userRole === "HOTEL_ADMIN";
     const isAdmin = userRole === "HOTEL_ADMIN";
 
-    const { data: categoryData, isLoading: catLoading } =
-        useGetCategoriesQuery();
-
+    const { data: categoryData, isLoading: catLoading } = useGetCategoriesQuery({
+        role: userRole,
+        hotelId,
+        page: currentPage,
+        limit,
+    });
     const categories = useMemo(() => {
         if (!Array.isArray(categoryData?.data)) return [];
         return categoryData.data;
@@ -70,12 +80,12 @@ const Dishes = () => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
-
         const name = formData.get("name")?.trim();
         const price = formData.get("price");
         const type = formData.get("type");
         const isAvailable = formData.get("isAvailable");
         const category = formData.get("category");
+        console.log("form data-===",category)
 
         let newErrors = {};
 
@@ -98,12 +108,12 @@ const Dishes = () => {
             price: Number(price),
             type,
             isAvailable: isAvailable === "true",
-            category,
+            category: category,
         };
 
         try {
             if (selectedDish) {
-                await updateDish({ id: selectedDish.id, ...payload }).unwrap();
+                await updateDish({ id: selectedDish._id || selectedDish.id, ...payload }).unwrap();
                 toast.success("Dish updated successfully ✅");
             } else {
                 await createDish(payload).unwrap();
@@ -129,256 +139,256 @@ const Dishes = () => {
         if (!confirmDelete) return;
 
         try {
-            await deleteDish(id).unwrap(); // ✅ correct function
+            await deleteDish(id).unwrap();
             toast.success("Dish deleted successfully 🗑️");
         } catch (error) {
             toast.error(error?.data?.message || "Delete failed ❌");
         }
     };
 
-   const columns = [
-    { label: "Name", key: "name" },
-    {
-        label: "Category",
-        render: (row) => row.category?.name || "N/A",
-    },
-    {
-        label: "Price",
-        render: (row) => `₹${row.price}`,
-    },
-    { label: "Type", key: "type" },
-    {
-        label: "Available",
-        render: (row) => (
-            <span
-                className={
-                    row.isAvailable ? "text-green-600" : "text-red-600"
-                }
-            >
-                {row.isAvailable ? "Yes" : "No"}
-            </span>
-        ),
-    },
-
-    // ✅ Conditionally add Actions column
-    ...(isAdmin
-        ? [
-              {
-                  label: "Actions",
-                  render: (row) => (
-                      <div className="flex gap-2">
-                          <button
-                              onClick={() => {
-                                  setSelectedDish(row);
-                                  setOpenModal(true);
-                              }}
-                              className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
-                          >
-                              Edit
-                          </button>
-                          <button
-                              onClick={() => handleDelete(row.id)}
-                              className="px-3 py-1 bg-red-500 text-white rounded text-xs"
-                          >
-                              Delete
-                          </button>
-                      </div>
-                  ),
-              },
-          ]
-        : []),
-];
-
-return (
-    <Layout>
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-6 mb-6 gap-4">
-            <h1 className="text-xl md:text-2xl font-semibold">All Dishes</h1>
-
-            <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
-                <input
-                    type="text"
-                    placeholder="Search dish..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="border px-4 py-2 rounded text-sm md:text-base"
-                />
-                {isAdmin && (
-                    <button
-                        onClick={() => {
-                            setSelectedDish(null);
-                            setOpenModal(true);
-                        }}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded text-sm md:text-base whitespace-nowrap"
-                    >
-                        + Add Dish
-                    </button>
-                )}
-            </div>
-        </div>
-
-        <Table
-            columns={columns}
-            data={paginatedDishes}
-            loading={isLoading}
-        />
-
-        {/* ✅ Pagination */}
-        {!isLoading && (
-        <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.max(prev - 1, 1))
-            }
-            disabled={currentPage === 1}
-            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
-          >
-            Previous
-          </button>
-
-          <span className="px-3 md:px-4 py-2 text-sm md:text-base">
-            Page {currentPage} of {totalPages || 1}
-          </span>
-
-          <button
-            onClick={() =>
-              setCurrentPage((prev) =>
-                Math.min(prev + 1, totalPages)
-              )
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-        {/* ✅ Modal */}
-        {openModal && (
-            <div
-                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-                onClick={() => setOpenModal(false)}
-            >
-                <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-white p-6 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+    const columns = [
+        { label: "Name", key: "name" },
+        {
+            label: "Category",
+            render: (row) => row.category?.name || "N/A",
+        },
+        {
+            label: "Price",
+            render: (row) => `₹${row.price}`,
+        },
+        { label: "Type", key: "type" },
+        {
+            label: "Available",
+            render: (row) => (
+                <span
+                    className={
+                        row.isAvailable ? "text-green-600" : "text-red-600"
+                    }
                 >
-                    <h2 className="text-lg font-semibold mb-4">
-                        {selectedDish ? "Edit Dish" : "Add Dish"}
-                    </h2>
+                    {row.isAvailable ? "Yes" : "No"}
+                </span>
+            ),
+        },
 
-                    <form onSubmit={handleSubmit} className="space-y-3">
-                        {errors.apiError && (
-                            <p className="text-red-500 text-sm text-center">
-                                {errors.apiError}
-                            </p>
-                        )}
-
-                        <input
-                            name="name"
-                            defaultValue={selectedDish?.name}
-                            placeholder="Dish Name"
-                            className={`border w-full px-3 py-2 rounded ${errors.name
-                                ? "border-red-500"
-                                : "border-gray-300"
-                                }`}
-                        />
-                        {errors.name && (
-                            <p className="text-red-500 text-sm">
-                                {errors.name}
-                            </p>
-                        )}
-
-                        <input
-                            name="price"
-                            type="number"
-                            defaultValue={selectedDish?.price}
-                            placeholder="Price"
-                            className={`border w-full px-3 py-2 rounded ${errors.price
-                                ? "border-red-500"
-                                : "border-gray-300"
-                                }`}
-                        />
-                        {errors.price && (
-                            <p className="text-red-500 text-sm">
-                                {errors.price}
-                            </p>
-                        )}
-
-                        <select
-                            name="type"
-                            defaultValue={selectedDish?.type || "veg"}
-                            className="border w-full px-3 py-2 rounded text-sm"
-                        >
-                            <option value="veg">Veg</option>
-                            <option value="non-veg">Non Veg</option>
-                        </select>
-
-                        <select
-                            name="isAvailable"
-                            defaultValue={
-                                selectedDish?.isAvailable?.toString() ||
-                                "true"
-                            }
-                            className="border w-full px-3 py-2 rounded text-sm"
-                        >
-                            <option value="true">Available</option>
-                            <option value="false">Not Available</option>
-                        </select>
-
-                        <select
-                            name="category"
-                            disabled={catLoading}
-                            defaultValue={
-                                selectedDish?.category?.id || ""
-                            }
-                            className={`border w-full px-3 py-2 rounded text-sm ${errors.category
-                                ? "border-red-500"
-                                : "border-gray-300"
-                                }`}
-                        >
-                            <option value="">
-                                {catLoading
-                                    ? "Loading..."
-                                    : "Select Category"}
-                            </option>
-
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-
-                        {errors.category && (
-                            <p className="text-red-500 text-sm">
-                                {errors.category}
-                            </p>
-                        )}
-
-                        <div className="flex justify-end gap-3 pt-3">
+        // ✅ Conditionally add Actions column
+        ...(isAdmin
+            ? [
+                {
+                    label: "Actions",
+                    render: (row) => (
+                        <div className="flex gap-2">
                             <button
-                                type="button"
-                                onClick={() => setOpenModal(false)}
-                                className="px-4 py-2 bg-gray-200 rounded text-sm"
+                                onClick={() => {
+                                    setSelectedDish(row);
+                                    setOpenModal(true);
+                                }}
+                                className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
                             >
-                                Cancel
+                                Edit
                             </button>
-
                             <button
-                                type="submit"
-                                className="px-4 py-2 bg-indigo-600 text-white rounded text-sm"
+                                onClick={() => handleDelete(row._id)}
+                                className="px-3 py-1 bg-red-500 text-white rounded text-xs"
                             >
-                                {selectedDish ? "Update" : "Create"}
+                                Delete
                             </button>
                         </div>
-                    </form>
+                    ),
+                },
+            ]
+            : []),
+    ];
+
+    return (
+        <Layout>
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-6 mb-6 gap-4">
+                <h1 className="text-xl md:text-2xl font-semibold">All Dishes</h1>
+
+                <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
+                    <input
+                        type="text"
+                        placeholder="Search dish..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="border px-4 py-2 rounded text-sm md:text-base"
+                    />
+                    {isAdmin && (
+                        <button
+                            onClick={() => {
+                                setSelectedDish(null);
+                                setOpenModal(true);
+                            }}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded text-sm md:text-base whitespace-nowrap"
+                        >
+                            + Add Dish
+                        </button>
+                    )}
                 </div>
             </div>
-        )}
-    </Layout>
-);
+
+            <Table
+                columns={columns}
+                data={paginatedDishes}
+                loading={isLoading}
+            />
+
+            {/* ✅ Pagination */}
+            {totalPages > 1 && (
+                <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
+                    <button
+                        onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
+                    >
+                        Previous
+                    </button>
+
+                    <span className="px-3 md:px-4 py-2 text-sm md:text-base">
+                        Page {currentPage} of {totalPages || 1}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            setCurrentPage((prev) =>
+                                Math.min(prev + 1, totalPages)
+                            )
+                        }
+                        disabled={currentPage === totalPages}
+                        className="px-3 md:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-sm md:text-base"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+
+            {/* ✅ Modal */}
+            {openModal && (
+                <div
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                    onClick={() => setOpenModal(false)}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white p-6 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                    >
+                        <h2 className="text-lg font-semibold mb-4">
+                            {selectedDish ? "Edit Dish" : "Add Dish"}
+                        </h2>
+
+                        <form onSubmit={handleSubmit} className="space-y-3">
+                            {errors.apiError && (
+                                <p className="text-red-500 text-sm text-center">
+                                    {errors.apiError}
+                                </p>
+                            )}
+
+                            <input
+                                name="name"
+                                defaultValue={selectedDish?.name}
+                                placeholder="Dish Name"
+                                className={`border w-full px-3 py-2 rounded ${errors.name
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                                    }`}
+                            />
+                            {errors.name && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.name}
+                                </p>
+                            )}
+
+                            <input
+                                name="price"
+                                type="number"
+                                defaultValue={selectedDish?.price}
+                                placeholder="Price"
+                                className={`border w-full px-3 py-2 rounded ${errors.price
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                                    }`}
+                            />
+                            {errors.price && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.price}
+                                </p>
+                            )}
+
+                            <select
+                                name="type"
+                                defaultValue={selectedDish?.type || "veg"}
+                                className="border w-full px-3 py-2 rounded text-sm"
+                            >
+                                <option value="veg">Veg</option>
+                                <option value="non-veg">Non Veg</option>
+                            </select>
+
+                            <select
+                                name="isAvailable"
+                                defaultValue={
+                                    selectedDish?.isAvailable?.toString() ||
+                                    "true"
+                                }
+                                className="border w-full px-3 py-2 rounded text-sm"
+                            >
+                                <option value="true">Available</option>
+                                <option value="false">Not Available</option>
+                            </select>
+
+                            <select
+                                name="category"
+                                disabled={catLoading}
+                                defaultValue={
+                                    selectedDish?.category?._id || ""
+                                }
+                                className={`border w-full px-3 py-2 rounded text-sm ${errors.category
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                                    }`}
+                            >
+                                <option value="">
+                                    {catLoading
+                                        ? "Loading..."
+                                        : "Select Category"}
+                                </option>
+
+                                {categories.map((cat) => (
+                                    <option key={cat._id} value={cat._id}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {errors.category && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.category}
+                                </p>
+                            )}
+
+                            <div className="flex justify-end gap-3 pt-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenModal(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded text-sm"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded text-sm"
+                                >
+                                    {selectedDish ? "Update" : "Create"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </Layout>
+    );
 };
 
 export default Dishes;
