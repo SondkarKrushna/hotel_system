@@ -72,10 +72,10 @@ const Dishes = () => {
     // Get totalPages from API response pagination object
     const totalPages = data?.pagination?.totalPages || Math.ceil(filteredDishes.length / limit);
 
-    const paginatedDishes = filteredDishes.slice(
-        (currentPage - 1) * limit,
-    currentPage * limit
-  );
+    // Use server-provided page data when not searching; when searching, paginate client-side
+    const paginatedDishes = search
+        ? filteredDishes.slice((currentPage - 1) * limit, currentPage * limit)
+        : allDishes;
 
     // ✅ Reset page when search changes
     useEffect(() => {
