@@ -58,7 +58,7 @@ export const employeeApi = createApi({
         // ✅ UPDATE EMPLOYEE
         updateEmployee: builder.mutation({
             query: ({ id, body }) => ({
-                url: `/api/staff/hotel/${id}`,
+                url: `/api/staff/${id}`,
                 method: "PUT",
                 body,
             }),

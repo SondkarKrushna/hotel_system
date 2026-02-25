@@ -98,7 +98,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     bg-white border-r border-gray-200
     z-50 lg:z-40 transform transition-transform duration-300
     ${isOpen ? "translate-x-0" : "-translate-x-full"}
-    lg:static lg:translate-x-0
+    lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen
     flex flex-col
   `}
     >
