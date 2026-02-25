@@ -96,7 +96,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     fixed inset-y-0 left-0
     ${collapsed ? "w-20" : "w-64"}
     bg-white border-r border-gray-200
-    z-40 transform transition-transform duration-300
+    z-50 lg:z-40 transform transition-transform duration-300
     ${isOpen ? "translate-x-0" : "-translate-x-full"}
     lg:static lg:translate-x-0
     flex flex-col
