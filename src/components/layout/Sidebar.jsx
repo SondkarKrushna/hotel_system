@@ -213,7 +213,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       </nav>
 
       {/* Logout */}
-      <div className="px-2 mt-4">
+      {/* <div className="px-2 mt-4">
         <button
           onClick={handleLogout}
           className={`w-full flex items-center ${collapsed ? "justify-center" : "gap-3"
@@ -237,7 +237,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             )}
           </AnimatePresence>
         </button>
-      </div>
+      </div> */}
     </motion.aside>
   );
 };
