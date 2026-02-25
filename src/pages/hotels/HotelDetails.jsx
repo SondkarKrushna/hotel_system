@@ -153,7 +153,7 @@ const HotelDetails = () => {
     key: "name",
     render: (row) => (
       <button
-        onClick={() => navigate(`/staff/staffdetails/`)}
+        onClick={() => navigate(`/staff/staffdetails/${row._id}`)}
         className="text-[#24435d] font-medium hover:underline hover:text-blue-600 transition"
       >
         {row.profile?.name || "N/A"}

@@ -24,7 +24,7 @@ const MainRoutes = () => {
       <Route path="dishes" element={<Dishes />} />
       <Route path="category" element={<Categories />} />
       <Route path="hotelDetails/:id" element={<HotelDetails />} />
-      <Route path="staff/staffdetails/" element={<EmployeeDetails />} />  
+      <Route path="staff/staffdetails/:id" element={<EmployeeDetails />} />
       </Routes>
   );
 }; 

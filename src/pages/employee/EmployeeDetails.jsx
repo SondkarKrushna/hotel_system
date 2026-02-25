@@ -12,7 +12,7 @@ import {
   DollarSign,
 } from "lucide-react";
 
-import { useGetEmployeeByIdQuery } from "../../store/Api/employeeApi";
+import { useGetEmployeeProfileQuery } from "../../store/Api/employeeApi";
 
 const InfoItem = ({ icon: Icon, label, value }) => (
   <div className="flex items-start gap-3 bg-[#F5FAFF] p-3 rounded border border-gray-100">
@@ -29,9 +29,51 @@ const InfoItem = ({ icon: Icon, label, value }) => (
 const EmployeeDetails = () => {
   const { id } = useParams();
 
-  const { data, isLoading, isError } = useGetEmployeeByIdQuery(id, {
+  const { data, isLoading, isError } = useGetEmployeeProfileQuery(id, {
     skip: !id,
   });
+
+  const [activeTab, setActiveTab] = useState("orders");
+
+  // ✅ Extract API Data FIRST (before using in useMemo)
+  const staff = data?.profiles?.staff || {};
+  const manager = data?.profiles?.manager || {};
+  const hotel = data?.profiles?.hotel || {};
+  const metrics = data?.metrics || {};
+  const orders = data?.orders || [];
+
+  // ✅ Hooks must always run before conditional returns
+  const formattedOrders = React.useMemo(() => {
+    return orders.map(order => ({
+      id: order.id,
+      customerName: order.customer?.name,
+      customerPhone: order.customer?.phone,
+      totalItems: 1,
+      totalAmount: order.grandTotal,
+      status: order.status,
+    }));
+  }, [orders]);
+
+  const formattedCustomers = React.useMemo(() => {
+    const customerMap = {};
+
+    orders.forEach(order => {
+      const phone = order.customer?.phone;
+      const name = order.customer?.name;
+
+      if (!customerMap[phone]) {
+        customerMap[phone] = {
+          customerName: name,
+          customerPhone: phone,
+          orderCount: 0,
+        };
+      }
+
+      customerMap[phone].orderCount += 1;
+    });
+
+    return Object.values(customerMap);
+  }, [orders]);
 
   if (isLoading) {
     return (
@@ -53,31 +95,6 @@ const EmployeeDetails = () => {
     );
   }
 
-  // Extract API Data
-  const employee = data?.data?.employee || {};
-  const profile = employee?.profile || {};
-  const salaryHistory = employee?.salaryHistory || [];
-
-  const salaryColumns = [
-    {
-      label: "Month",
-      key: "month",
-    },
-    {
-      label: "Amount",
-      key: "amount",
-      render: (row) => `₹ ${row.amount}`,
-    },
-    {
-      label: "Paid On",
-      key: "paidOn",
-      render: (row) =>
-        row.paidOn ? new Date(row.paidOn).toLocaleDateString() : "N/A",
-    },
-  ];
-
-  const [activeTab, setActiveTab] = useState("orders");
-
   return (
     <Layout>
       <div className="bg-[#F2F8FF] min-h-screen p-6">
@@ -88,15 +105,15 @@ const EmployeeDetails = () => {
 
             {/* Profile Card */}
             <div className="bg-[#24435d] text-white rounded p-6 text-center">
-              <div className="w-20 h-20 bg-white rounded-full mx-auto mb-3 overflow-hidden">
-                <img
-                  src={profile?.avatar || "/images/user.jpg"}
-                  alt="employee"
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-20 h-20 bg-[#e6f0f8] rounded-full mx-auto mb-3 flex items-center justify-center text-3xl font-bold text-[#24435d] shadow-md">
+                {staff?.name ? staff.name.charAt(0).toUpperCase() : "?"}
               </div>
-              <h2 className="font-semibold text-lg">Name: ABCD</h2>
-              <p className="text-sm capitalize">Role: staff</p>
+              <h2 className="font-semibold text-lg">
+                {staff?.name || "N/A"}
+              </h2>
+              <p className="text-sm capitalize">
+                {staff?.role?.toLowerCase() || "N/A"}
+              </p>
             </div>
 
             {/* Contact Info */}
@@ -106,19 +123,19 @@ const EmployeeDetails = () => {
               <InfoItem
                 icon={Phone}
                 label="Phone"
-                value={profile?.phone}
+                value={staff?.phone}
               />
 
               <InfoItem
                 icon={Mail}
                 label="Email"
-                value={profile?.email}
+                value={staff?.email}
               />
 
               <InfoItem
                 icon={MapPin}
                 label="Address"
-                value={profile?.address}
+                value={`${hotel?.address || ""} ${hotel?.city || ""} ${hotel?.country || ""}`}
               />
             </div>
           </div>
@@ -145,7 +162,8 @@ const EmployeeDetails = () => {
 
               {/* ================= TAB CONTENT ================= */}
               <div className="mt-6">
-                {/* ===== ORDERS TAB (Dummy Content) ===== */}
+
+                {/* ===== ORDERS TAB ===== */}
                 {activeTab === "orders" && (
                   <div className="space-y-6">
 
@@ -156,7 +174,7 @@ const EmployeeDetails = () => {
                         <div>
                           <p className="text-sm text-gray-500">Total Orders</p>
                           <h3 className="text-2xl font-bold text-[#24435d]">
-                            24
+                            {metrics?.totalOrders || 0}
                           </h3>
                         </div>
                       </div>
@@ -165,60 +183,40 @@ const EmployeeDetails = () => {
                         <div>
                           <p className="text-sm text-gray-500">Total Revenue</p>
                           <h3 className="text-2xl font-bold text-green-600">
-                            ₹ 18,500
+                            ₹ {metrics?.totalRevenue || 0}
                           </h3>
                         </div>
                       </div>
 
                     </div>
 
-                    {/* Dummy Orders Table */}
+                    {/* Orders Table */}
                     <Table
                       columns={[
-                        { label: "Customer", key: "customer" },
-                        { label: "Items", key: "items" },
-                        { label: "Amount", key: "amount" },
+                        { label: "Customer", key: "customerName" },
+                        { label: "Items", key: "totalItems" },
+                        {
+                          label: "Amount",
+                          key: "totalAmount",
+                          render: (row) => `₹ ${row.totalAmount}`,
+                        },
                         { label: "Status", key: "status" },
                       ]}
-                      data={[
-                        {
-                          customer: "Rahul Patil",
-                          items: 3,
-                          amount: "₹ 1,250",
-                          status: "Completed",
-                        },
-                        {
-                          customer: "Sneha Sharma",
-                          items: 2,
-                          amount: "₹ 850",
-                          status: "Pending",
-                        },
-                      ]}
+                      data={formattedOrders}
                       loading={false}
                     />
                   </div>
                 )}
 
-                {/* ===== CUSTOMERS TAB (Dummy Content) ===== */}
+                {/* ===== CUSTOMERS TAB ===== */}
                 {activeTab === "customers" && (
                   <Table
                     columns={[
-                      { label: "Customer Name", key: "name" },
-                      { label: "Phone", key: "phone" },
-                      { label: "Total Orders", key: "orders" },
+                      { label: "Customer Name", key: "customerName" },
+                      { label: "Phone", key: "customerPhone" },
+                      { label: "Total Orders", key: "orderCount" },
                     ]}
-                    data={[
-                      {
-                        name: "Amit Kulkarni",
-                        phone: "9876543210",
-                        orders: 5,
-                      },
-                      {
-                        name: "Pooja Deshmukh",
-                        phone: "9123456780",
-                        orders: 3,
-                      },
-                    ]}
+                    data={formattedCustomers}
                     loading={false}
                   />
                 )}

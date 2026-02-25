@@ -243,7 +243,7 @@ const Employees = () => {
   key: "fullName",
   render: (row) => (
     <button
-      onClick={() => navigate("staffdetails")}
+      onClick={() => navigate(`/staff/staffdetails/${row._id}`)}
       className="text-indigo-600 hover:underline font-medium"
     >
       {row.fullName}
