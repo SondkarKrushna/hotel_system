@@ -16,7 +16,14 @@ export const dishApi = createApi({
   tagTypes: ["Dish"],
   endpoints: (builder) =>({
     getDishes: builder.query({
-      query: () => "/api/dish",
+      query: ({ role, page = 1, limit = 10 } = {}) => {
+        // For SUPER_ADMIN, call /api/dish/all with pagination
+        if (role === "SUPER_ADMIN") {
+          return `/api/dish/all?page=${page}&limit=${limit}`;
+        }
+        // For other roles, call /api/dish with pagination
+        return `/api/dish?page=${page}&limit=${limit}`;
+      },
       providesTags: ["Dish"],
     }),
 

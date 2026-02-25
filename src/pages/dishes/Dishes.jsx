@@ -18,16 +18,6 @@ const Dishes = () => {
     const [openModal, setOpenModal] = useState(false);
 
     const limit = 10;
-
-    const { data, isLoading, isError } = useGetDishesQuery();
-
-    useEffect(() => {
-        console.log("useGetDishesQuery ->", { data, isLoading, isError });
-    }, [data, isLoading, isError]);
-    const [createDish] = useCreateDishMutation();
-    const [updateDish] = useUpdateDishMutation();
-    const [deleteDish] = useDeleteDishMutation();
-
     const user = useMemo(() => {
         return JSON.parse(localStorage.getItem("adminUser"));
     }, []);
@@ -39,6 +29,22 @@ const Dishes = () => {
     const isSuperAdmin = userRole === "SUPER_ADMIN";
     const isHotelAdmin = userRole === "HOTEL_ADMIN";
     const isAdmin = userRole === "HOTEL_ADMIN";
+
+
+    const { data, isLoading, isError } = useGetDishesQuery({
+        role: userRole,
+        hotelId,
+        page: currentPage,
+        limit,
+    });
+
+    useEffect(() => {
+        console.log("useGetDishesQuery ->", { data, isLoading, isError });
+    }, [data, isLoading, isError]);
+    const [createDish] = useCreateDishMutation();
+    const [updateDish] = useUpdateDishMutation();
+    const [deleteDish] = useDeleteDishMutation();
+
 
     const { data: categoryData, isLoading: catLoading } = useGetCategoriesQuery({
         role: userRole,
@@ -63,12 +69,13 @@ const Dishes = () => {
         );
     }, [allDishes, search]);
 
-    const totalPages = Math.ceil(filteredDishes.length / limit);
+    // Get totalPages from API response pagination object
+    const totalPages = data?.pagination?.totalPages || Math.ceil(filteredDishes.length / limit);
 
     const paginatedDishes = filteredDishes.slice(
         (currentPage - 1) * limit,
-        currentPage * limit
-    );
+    currentPage * limit
+  );
 
     // ✅ Reset page when search changes
     useEffect(() => {
@@ -85,7 +92,7 @@ const Dishes = () => {
         const type = formData.get("type");
         const isAvailable = formData.get("isAvailable");
         const category = formData.get("category");
-        console.log("form data-===",category)
+        console.log("form data-===", category)
 
         let newErrors = {};
 
@@ -233,7 +240,7 @@ const Dishes = () => {
                 loading={isLoading}
             />
 
-            {/* ✅ Pagination */}
+            {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3 mt-6">
                     <button
