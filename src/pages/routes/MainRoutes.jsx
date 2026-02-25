@@ -9,6 +9,7 @@ import Employees from "../employee/Employees";
 import Dishes from "../dishes/Dishes"
 import Categories from "../Categories";
 import HotelDetails from "../hotels/HotelDetails";
+import EmployeeDetails from "../employee/EmployeeDetails";
 
 const MainRoutes = () => {
   return (
@@ -22,7 +23,9 @@ const MainRoutes = () => {
       <Route path="staff" element={<Employees />} />
       <Route path="dishes" element={<Dishes />} />
       <Route path="category" element={<Categories />} />
-      <Route path="hotelDetails/:id" element={<HotelDetails />} />    </Routes>
+      <Route path="hotelDetails/:id" element={<HotelDetails />} />
+      <Route path="staff/staffdetails/" element={<EmployeeDetails />} />  
+      </Routes>
   );
 }; 
 

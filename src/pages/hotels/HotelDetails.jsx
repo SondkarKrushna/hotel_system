@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { useGetHotelByIdQuery } from "../../store/Api/hotelApi";
+import { useNavigate } from "react-router-dom";
 
 const StatBox = ({ icon: Icon, label, value }) => (
     <div className="border border-gray-100 rounded p-3 flex items-center gap-3 text-sm">
@@ -40,6 +41,8 @@ const InfoItem = ({ icon: Icon, label, value }) => (
 );
 
 const HotelDetails = () => {
+
+    const navigate = useNavigate();
     const { id } = useParams();
     const [activeTab, setActiveTab] = useState("staff");
 
@@ -145,17 +148,24 @@ const HotelDetails = () => {
     const totalRevenue = summary?.financials?.totalRevenue || 0;
 
     const staffColumns = [
-        {
-            label: "Name",
-            key: "name",
-            render: (row) => row.profile?.name || "N/A",
-        },
-        {
-            label: "Email",
-            key: "email",
-            render: (row) => row.profile?.email || "N/A",
-        },
-    ];
+  {
+    label: "Name",
+    key: "name",
+    render: (row) => (
+      <button
+        onClick={() => navigate(`/staff/staffdetails/`)}
+        className="text-[#24435d] font-medium hover:underline hover:text-blue-600 transition"
+      >
+        {row.profile?.name || "N/A"}
+      </button>
+    ),
+  },
+  {
+    label: "Email",
+    key: "email",
+    render: (row) => row.profile?.email || "N/A",
+  },
+];
 
     const menuColumns = [
         {
