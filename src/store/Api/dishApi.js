@@ -14,7 +14,7 @@ export const dishApi = createApi({
     },
   }),
   tagTypes: ["Dish"],
-  endpoints: (builder) =>({
+  endpoints: (builder) => ({
     getDishes: builder.query({
       query: ({ role, page = 1, limit = 10 } = {}) => {
         // For SUPER_ADMIN, call /api/dish/all with pagination
@@ -44,6 +44,15 @@ export const dishApi = createApi({
       }),
       invalidatesTags: ["Dish"],
     }),
+   
+    bulkUploadDish: builder.mutation({
+    query: (formData) => ({
+        url: "/api/dish/bulk-upload",
+        method: "POST",
+        body: formData,
+    }),
+    invalidatesTags: ["Dish"], // VERY IMPORTANT
+}),
 
     deleteDish: builder.mutation({
       query: (id) => ({
@@ -57,6 +66,7 @@ export const dishApi = createApi({
 
 export const {
   useGetDishesQuery,
+  useBulkUploadDishMutation,
   useCreateDishMutation,
   useUpdateDishMutation,
   useDeleteDishMutation,

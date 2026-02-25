@@ -6,6 +6,7 @@ import {
     useCreateDishMutation,
     useUpdateDishMutation,
     useDeleteDishMutation,
+    useBulkUploadDishMutation,
 } from "../../store/Api/dishApi";
 import { useGetCategoriesQuery } from "../../store/Api/categoryApi";
 import { toast } from "react-toastify";
@@ -16,6 +17,13 @@ const Dishes = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedDish, setSelectedDish] = useState(null);
     const [openModal, setOpenModal] = useState(false);
+    const [openBulkModal, setOpenBulkModal] = useState(false);
+    const [bulkCategory, setBulkCategory] = useState("");
+    const [bulkFile, setBulkFile] = useState(null);
+    const [bulkErrors, setBulkErrors] = useState({});
+
+    const [bulkUploadDish, { isLoading: bulkLoading }] =
+        useBulkUploadDishMutation();
 
     const limit = 10;
     const user = useMemo(() => {
@@ -152,6 +160,57 @@ const Dishes = () => {
             toast.error(error?.data?.message || "Delete failed ❌");
         }
     };
+    const handleBulkUpload = async (e) => {
+        e.preventDefault();
+
+        let errors = {};
+
+        if (!bulkCategory) {
+            errors.category = "Category is required";
+        }
+
+        if (!bulkFile) {
+            errors.file = "Excel file is required";
+        }
+
+        if (bulkFile) {
+            const allowedTypes = [
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "application/vnd.ms-excel",
+            ];
+
+            if (!allowedTypes.includes(bulkFile.type)) {
+                errors.file = "Only .xlsx or .xls files are allowed";
+            }
+
+            if (bulkFile.size > 5 * 1024 * 1024) {
+                errors.file = "File size must be less than 5MB";
+            }
+        }
+
+        setBulkErrors(errors);
+
+        if (Object.keys(errors).length > 0) return;
+
+        try {
+            const formData = new FormData();
+            formData.append("file", bulkFile);
+            formData.append("categoryId", bulkCategory);
+            formData.append("hotelId", hotelId);
+
+            await bulkUploadDish(formData).unwrap();
+
+            toast.success("Bulk upload successful ✅");
+
+            setOpenBulkModal(false);
+            setBulkCategory("");
+            setBulkFile(null);
+            setBulkErrors({});
+
+        } catch (error) {
+            toast.error(error?.data?.message || "Bulk upload failed ❌");
+        }
+    };
 
     const columns = [
         { label: "Name", key: "name" },
@@ -220,17 +279,27 @@ const Dishes = () => {
                         onChange={(e) => setSearch(e.target.value)}
                         className="border px-4 py-2 rounded text-sm md:text-base"
                     />
-                    {isAdmin && (
-                        <button
-                            onClick={() => {
-                                setSelectedDish(null);
-                                setOpenModal(true);
-                            }}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded text-sm md:text-base whitespace-nowrap"
-                        >
-                            + Add Dish
-                        </button>
+                    {isHotelAdmin && (
+                        <>
+                            <button
+                                onClick={() => {
+                                    setSelectedDish(null);
+                                    setOpenModal(true);
+                                }}
+                                className="bg-indigo-600 text-white px-4 py-2 rounded text-sm"
+                            >
+                                + Add Dish
+                            </button>
+
+                            <button
+                                onClick={() => setOpenBulkModal(true)}
+                                className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+                            >
+                                ⬆ Bulk Upload
+                            </button>
+                        </>
                     )}
+
                 </div>
             </div>
 
@@ -394,6 +463,90 @@ const Dishes = () => {
                     </div>
                 </div>
             )}
+            {openBulkModal && (
+                <div
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                    onClick={() => setOpenBulkModal(false)}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white p-6 rounded-xl w-full max-w-md"
+                    >
+                        <h2 className="text-lg font-semibold mb-4">
+                            Bulk Upload Dishes
+                        </h2>
+
+                        <form onSubmit={handleBulkUpload} className="space-y-4">
+
+                            {/* Category Select */}
+                            <div>
+                                <select
+                                    value={bulkCategory}
+                                    onChange={(e) => {
+                                        setBulkCategory(e.target.value);
+                                        setBulkErrors((prev) => ({ ...prev, category: "" }));
+                                    }}
+                                    className={`border w-full px-3 py-2 rounded ${bulkErrors.category ? "border-red-500" : ""
+                                        }`}
+                                >
+                                    <option value="">Select Category</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat._id} value={cat._id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {bulkErrors.category && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {bulkErrors.category}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* File Upload */}
+                            <div>
+                                <input
+                                    type="file"
+                                    accept=".xlsx,.xls"
+                                    onChange={(e) => {
+                                        setBulkFile(e.target.files[0]);
+                                        setBulkErrors((prev) => ({ ...prev, file: "" }));
+                                    }}
+                                    className={`border w-full px-3 py-2 rounded ${bulkErrors.file ? "border-red-500" : ""
+                                        }`}
+                                    key={bulkFile ? bulkFile.name : "empty"}
+                                />
+
+                                {bulkErrors.file && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {bulkErrors.file}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenBulkModal(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={bulkLoading}
+                                    className="px-4 py-2 bg-green-600 text-white rounded"
+                                >
+                                    {bulkLoading ? "Uploading..." : "Upload"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </Layout>
     );
 };
