@@ -9,12 +9,15 @@ import {
   useGetHotelEmployeesQuery,
 } from "../../store/Api/employeeApi";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Employees = () => {
   const [errors, setErrors] = useState({});
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
+
+  const navigate = useNavigate();
 
   // ✅ Get user role and hotel ID from localStorage and Redux
   const userRole = useMemo(() => {
@@ -235,7 +238,18 @@ const Employees = () => {
 
 
   const columns = [
-    { label: "Full Name", key: "fullName" },
+    {
+  label: "Full Name",
+  key: "fullName",
+  render: (row) => (
+    <button
+      onClick={() => navigate(`/staff/staffdetails/${row._id}`)}
+      className="text-indigo-600 hover:underline font-medium"
+    >
+      {row.fullName}
+    </button>
+  ),
+},
     // { label: "Role", key: "role" },
     { label: "Email", key: "email" },
     { label: "Phone", key: "phone" },

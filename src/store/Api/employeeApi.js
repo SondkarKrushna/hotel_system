@@ -6,7 +6,6 @@ export const employeeApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: `${import.meta.env.VITE_BACKEND_URL}`,
         prepareHeaders: (headers, { getState }) => {
-            // If you are using auth token
             const token = getState()?.auth?.token;
             if (token) {
                 headers.set("authorization", `Bearer ${token}`);
@@ -45,6 +44,11 @@ export const employeeApi = createApi({
             providesTags: ["Employee"],
         }),
 
+        getEmployeeProfile: builder.query({
+            query: (id) => `/api/staff/${id}/mega-profile`,
+            providesTags: ["Employee"]
+        }),
+
         // ✅ CREATE EMPLOYEE
         createEmployee: builder.mutation({
             query: (body) => ({
@@ -80,23 +84,9 @@ export const {
     useGetEmployeesQuery,
     useGetHotelEmployeesQuery,
     useGetEmployeeByIdQuery,
+    useGetEmployeeProfileQuery,
     useCreateEmployeeMutation,
     useUpdateEmployeeMutation,
     useDeleteEmployeeMutation,
 } = employeeApi;
 
-
-/* 
-Todays Updates:
-Hotel Management Project-
-
--design saprate dashboards for superadmin and hotel admin.
-also implement apis.
-- display orders data according to role super admin and hotel admin
-- manage staff crud for hotel admin side with listing,add,edit
-- manage all pages responsive
-- implement Approve hotelds functionality in super admin panel
-- testing all pages both panel
-
-
-*/
